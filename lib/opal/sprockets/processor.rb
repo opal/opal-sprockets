@@ -71,8 +71,20 @@ module Opal
       parser = Opal::SprocketsParser.new
       result = parser.parse data, options
 
-      parser.requires.each { |r| context.require_asset r }
+      parser.requires.each do |r|
+        path = find_opal_require context.environment, r
+        context.require_asset path
+      end
+
       result
+    end
+
+    def find_opal_require(environment, r)
+      path = environment.paths.find do |p|
+        File.exist?(File.join(p, "#{r}.rb"))
+      end
+
+      path ? File.join(path, "#{r}.rb") : r
     end
   end
 end
