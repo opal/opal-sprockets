@@ -1,3 +1,5 @@
+require 'rack/builder'
+require 'rack/directory'
 require 'rack/showexceptions'
 require 'opal/source_map'
 require 'opal/sprockets/source_map_header'
