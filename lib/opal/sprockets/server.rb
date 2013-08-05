@@ -30,10 +30,7 @@ module Opal
       asset  = sprockets[path]
       return [404, {}, []] if asset.nil?
 
-      source = asset.to_s
-      map    = Opal::SourceMap.new(source, asset.pathname.to_s)
-
-      return [200, {"Content-Type" => "text/json"}, [map.to_s]]
+      return [200, {"Content-Type" => "text/json"}, [$OPAL_SOURCE_MAPS[asset.pathname].to_s]]
     end
   end
 

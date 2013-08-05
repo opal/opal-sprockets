@@ -1,5 +1,6 @@
 require 'sprockets'
-require 'opal/sprockets/parser'
+
+$OPAL_SOURCE_MAPS = {}
 
 module Opal
 
@@ -65,18 +66,24 @@ module Opal
         :source_map_enabled       => self.class.source_map_enabled,
         :irb                      => self.class.irb_enabled,
         :file                     => context.logical_path,
-        :source_file              => context.pathname.to_s,
+        :source_file              => context.pathname.to_s
       }
 
-      parser = Opal::SprocketsParser.new
+      parser = Opal::RequireParser.new
       result = parser.parse data, options
+
 
       parser.requires.each do |r|
         path = find_opal_require context.environment, r
         context.require_asset path
       end
 
-      result
+      if self.class.source_map_enabled
+        $OPAL_SOURCE_MAPS[context.pathname] = Opal::SourceMap.new(parser.fragments, "file://#{context.pathname.to_s}").to_s
+        "#{result}\n//@ sourceMappingURL=/__opal_source_maps__/#{context.logical_path}.js.map\n"
+      else
+        result
+      end
     end
 
     def find_opal_require(environment, r)
