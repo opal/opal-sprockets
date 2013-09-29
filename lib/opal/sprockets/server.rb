@@ -37,10 +37,18 @@ module Opal
 
     attr_accessor :debug, :index_path, :main, :public_dir, :sprockets
 
-    def initialize debug = true
+    def initialize debug_or_options = {}
+      unless Hash === debug_or_options
+        warn "passing a boolean to control debug is deprecated.\n"+
+             "Please pass an Hash instead: Server.new(debug: true)"
+        options = {debug: debug_or_options}
+      else
+        options = debug_or_options
+      end
+
       @public_dir = '.'
       @sprockets  = Environment.new
-      @debug      = debug
+      @debug      = options.fetch(:debug, true)
 
       yield self if block_given?
       create_app
