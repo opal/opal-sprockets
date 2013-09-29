@@ -54,6 +54,10 @@ module Opal
       create_app
     end
 
+    def source_map_enabled
+      Opal::Processor.source_map_enabled
+    end
+
     def append_path path
       @sprockets.append_path path
     end
@@ -68,7 +72,7 @@ module Opal
       @app = Rack::Builder.app do
         use Rack::ShowExceptions
         map('/assets') { run sprockets }
-        map(server.source_maps.prefix) { run server.source_maps }
+        map(server.source_maps.prefix) { run server.source_maps } if @source_map_enabled
         use Index, server
         run Rack::Directory.new(server.public_dir)
       end
