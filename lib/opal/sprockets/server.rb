@@ -1,3 +1,5 @@
+require 'rack/file'
+require 'rack/urlmap'
 require 'rack/builder'
 require 'rack/directory'
 require 'rack/showexceptions'
