@@ -43,7 +43,7 @@ module Opal
       unless Hash === debug_or_options
         warn "passing a boolean to control debug is deprecated.\n"+
              "Please pass an Hash instead: Server.new(debug: true)"
-        options = {debug: debug_or_options}
+        options = {:debug => debug_or_options}
       else
         options = debug_or_options
       end
