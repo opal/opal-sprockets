@@ -69,7 +69,7 @@ module Opal
         :source_file              => context.pathname.to_s
       }
 
-      compiler = Opal::DependencyCompiler.new
+      compiler = Opal::Compiler.new
       result = compiler.compile data, options
 
       compiler.requires.each do |r|
