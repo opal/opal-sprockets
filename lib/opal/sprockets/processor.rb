@@ -69,16 +69,16 @@ module Opal
         :source_file              => context.pathname.to_s
       }
 
-      parser = Opal::RequireParser.new
-      result = parser.parse data, options
+      compiler = Opal::DependencyCompiler.new
+      result = compiler.compile data, options
 
-      parser.requires.each do |r|
+      compiler.requires.each do |r|
         path = find_opal_require context.environment, r
         context.require_asset path
       end
 
       if options[:source_map_enabled]
-        $OPAL_SOURCE_MAPS[context.pathname] = Opal::SourceMap.new(parser.fragments, "file://#{context.pathname.to_s}").to_s
+        $OPAL_SOURCE_MAPS[context.pathname] = Opal::SourceMap.new(compiler.fragments, "file://#{context.pathname.to_s}").to_s
         "#{result}\n//@ sourceMappingURL=/__opal_source_maps__/#{context.logical_path}.js.map\n"
       else
         result

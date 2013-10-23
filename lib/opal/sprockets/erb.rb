@@ -1,5 +1,5 @@
 require 'opal'
-require 'opal/parser'
+require 'opal/compiler'
 require 'sprockets'
 
 module Opal
@@ -16,11 +16,10 @@ module Opal
       end
 
       def prepare
-        # ...
       end
 
       def evaluate(scope, locals, &block)
-        Opal::ERB.parse data, scope.logical_path.sub(/^templates\//, '')
+        Opal::ERB.compile data, scope.logical_path.sub(/^templates\//, '')
       end
     end
   end
