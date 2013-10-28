@@ -12,6 +12,35 @@ gem "opal-sprockets"
 
 ## Usage
 
+Sprockets uses a set of load paths to resolve dependencies. This gem extends
+sprockets to provide opal load paths to sprockets. `opal-sprockets` provides
+a template processor for all files with `.rb` or `.opal` extensions.
+
+```ruby
+#= require opal
+
+puts "opal running in sprockets!"
+```
+
+### Improved require support
+
+By default, sprockets will examine your code for processor directive comments
+to handle requires, e.g. `#= require opal`. Opal takes this one step futher
+by extending the opal processor to automatically detect and register any
+`require` call made inside your ruby code:
+
+```ruby
+require "opal"
+require "opal-jquery"
+
+puts "opal-jquery is now available!"
+```
+
+Opal cannot require files at runtime, so this trick allows ruby code to use
+the nicer ruby syntax for requiring dependencies.
+
+## Example
+
 Sprockets uses a load path for code files, so make a simple `app/` directory
 with some code inside `app/application.rb`:
 
@@ -39,7 +68,7 @@ so add `index.html`:
 </html>
 ```
 
-## Running Application
+### Running Application
 
 `opal-sprockets` comes with a simple `Server` class that can be used to easily
 configure applications inside `config.ru`:
