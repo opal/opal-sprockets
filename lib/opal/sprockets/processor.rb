@@ -1,3 +1,4 @@
+require 'set'
 require 'sprockets'
 
 $OPAL_SOURCE_MAPS = {}
@@ -49,6 +50,14 @@ module Opal
     self.source_map_enabled          = true
     self.irb_enabled                 = false
 
+    def self.stub_file(name)
+      stubbed_files << name.to_s
+    end
+
+    def self.stubbed_files
+      @stubbed_files ||= Set.new
+    end
+
     def initialize_engine
       require_template_library 'opal'
     end
@@ -73,6 +82,7 @@ module Opal
       result = compiler.compile data, options
 
       compiler.requires.each do |r|
+        next if stubbed_file? r
         path = find_opal_require context.environment, r
         context.require_asset path
       end
@@ -83,6 +93,10 @@ module Opal
       else
         result
       end
+    end
+
+    def stubbed_file?(name)
+      self.class.stubbed_files.include? name
     end
 
     def find_opal_require(environment, r)
