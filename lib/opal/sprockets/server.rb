@@ -27,11 +27,17 @@ module Opal
     end
 
     def call(env)
-      path   = env['PATH_INFO'].gsub(/^\/|\.js\.map$/, '')
-      asset  = sprockets[path]
-      return [404, {}, []] if asset.nil?
+      path_info = env['PATH_INFO']
 
-      return [200, {"Content-Type" => "text/json"}, [$OPAL_SOURCE_MAPS[asset.pathname].to_s]]
+      if path_info =~ /\.js\.map$/
+        path   = env['PATH_INFO'].gsub(/^\/|\.js\.map$/, '')
+        asset  = sprockets[path]
+        return [404, {}, []] if asset.nil?
+
+        return [200, {"Content-Type" => "text/json"}, [$OPAL_SOURCE_MAPS[asset.pathname].to_s]]
+      else
+        return [200, {"Content-Type" => "text/text"}, [File.read(sprockets.resolve(path_info))]]
+      end
     end
   end
 
@@ -74,7 +80,7 @@ module Opal
       @app = Rack::Builder.app do
         use Rack::ShowExceptions
         map('/assets') { run sprockets }
-        map(server.source_maps.prefix) { run server.source_maps } if @source_map_enabled
+        map(server.source_maps.prefix) { run server.source_maps } if server.source_map_enabled
         use Index, server
         run Rack::Directory.new(server.public_dir)
       end

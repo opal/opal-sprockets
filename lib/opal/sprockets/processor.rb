@@ -88,11 +88,23 @@ module Opal
       end
 
       if options[:source_map_enabled]
-        $OPAL_SOURCE_MAPS[context.pathname] = Opal::SourceMap.new(compiler.fragments, "file://#{context.pathname.to_s}").to_s
-        "#{result}\n//@ sourceMappingURL=/__opal_source_maps__/#{context.logical_path}.js.map\n"
+        $OPAL_SOURCE_MAPS[context.pathname] = Opal::SourceMap.new(compiler.fragments, source_file_url(context)).to_s
+        "#{result}\n//@ sourceMappingURL=#{source_map_url(context)}\n"
       else
         result
       end
+    end
+
+    def source_map_url(context)
+      "#{prefix}/#{context.logical_path}.js.map"
+    end
+
+    def source_file_url(context)
+      "#{prefix}/#{context.logical_path.to_s}"
+    end
+
+    def prefix
+      "/__opal_source_maps__"
     end
 
     def stubbed_file?(name)
