@@ -69,10 +69,8 @@ module Opal
         :arity_check              => self.class.arity_check_enabled,
         :const_missing            => self.class.const_missing_enabled,
         :dynamic_require_severity => self.class.dynamic_require_severity,
-        :source_map_enabled       => self.class.source_map_enabled,
         :irb                      => self.class.irb_enabled,
         :file                     => context.logical_path,
-        :source_file              => context.pathname.to_s
       }
 
       compiler = Opal::Compiler.new
@@ -84,8 +82,8 @@ module Opal
         context.require_asset path
       end
 
-      if options[:source_map_enabled]
-        $OPAL_SOURCE_MAPS[context.pathname] = Opal::SourceMap.new(compiler.fragments, source_file_url(context)).to_s
+      if self.class.source_map_enabled
+        $OPAL_SOURCE_MAPS[context.pathname] = compiler.source_map(source_file_url(context)).to_s
         "#{result}\n//@ sourceMappingURL=#{source_map_url(context)}\n"
       else
         result
