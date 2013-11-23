@@ -3,5 +3,3 @@ class Adam
     raise "foo"
   end
 end
-
-Adam.new.bar
