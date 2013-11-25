@@ -1,13 +1,11 @@
 require 'opal'
-require 'foo'
-
-puts "wow!"
+require 'user'
 
 module MyApp
   class Application
     def initialize
-      @user = Adam.new
-      @user.bar
+      @user = User.new('Bill')
+      @user.authenticated?
     end
   end
 end
