@@ -1,69 +1,43 @@
-require 'rack/file'
-require 'rack/urlmap'
-require 'rack/builder'
-require 'rack/directory'
-require 'rack/showexceptions'
+require 'rack'
 require 'opal/source_map'
-require 'opal/sprockets/environment'
+require 'sprockets'
+require 'sourcemap'
 require 'erb'
+require 'opal/sprockets/source_map_server'
+require 'opal/sprockets/source_map_header_patch'
 
 module Opal
-
-  class SourceMapServer
-    def initialize sprockets
-      @sprockets = sprockets
-    end
-
-    attr_reader :sprockets
-
-    attr_writer :prefix
-
-    def prefix
-      @prefix ||= '/__opal_source_maps__'
-    end
-
-    def inspect
-      "#<#{self.class}:#{object_id}>"
-    end
-
-    def call(env)
-      path_info = env['PATH_INFO']
-
-      if path_info =~ /\.js\.map$/
-        path   = env['PATH_INFO'].gsub(/^\/|\.js\.map$/, '')
-        asset  = sprockets[path]
-        return [404, {}, []] if asset.nil?
-
-        return [200, {"Content-Type" => "text/json"}, [$OPAL_SOURCE_MAPS[asset.pathname].to_s]]
-      else
-        return [200, {"Content-Type" => "text/text"}, [File.read(sprockets.resolve(path_info))]]
-      end
-    end
-  end
-
   class Server
+    SOURCE_MAPS_PREFIX_PATH = '/__OPAL_SOURCE_MAPS__'
 
-    attr_accessor :debug, :index_path, :main, :public_dir, :sprockets
+    attr_accessor :debug, :use_index, :index_path, :main, :public_root,
+                  :public_urls, :sprockets, :prefix
 
-    def initialize debug_or_options = {}
-      unless Hash === debug_or_options
-        warn "passing a boolean to control debug is deprecated.\n"+
-             "Please pass an Hash instead: Server.new(debug: true)"
-        options = {:debug => debug_or_options}
-      else
-        options = debug_or_options
-      end
+    def initialize options = {}
+      @use_index   = true
+      @public_root = nil
+      @public_urls = ['/']
+      @sprockets   = options.fetch(:sprockets, ::Sprockets::Environment.new)
+      @debug       = options.fetch(:debug, true)
+      @prefix      = options.fetch(:prefix, '/assets')
 
-      @public_dir = '.'
-      @sprockets  = Environment.new
-      @debug      = options.fetch(:debug, true)
+      Opal.paths.each { |p| @sprockets.append_path(p) }
 
       yield self if block_given?
       create_app
     end
 
+    def public_dir=(dir)
+      @public_root = dir
+      @public_urls = ["/"]
+    end
+
+    def source_map=(enabled)
+      Opal::Config.source_map_enabled = enabled
+    end
+
     def source_map_enabled
-      Opal::Processor.source_map_enabled
+      Opal::Config.source_map_enabled
     end
 
     def append_path path
@@ -75,19 +49,30 @@ module Opal
     end
 
     def create_app
-      server, sprockets = self, @sprockets
+      server, sprockets, prefix = self, @sprockets, self.prefix
+      sprockets.logger.level ||= Logger::DEBUG
+      source_map_enabled = self.source_map_enabled
+      if source_map_enabled
+        maps_prefix = SOURCE_MAPS_PREFIX_PATH
+        maps_app = SourceMapServer.new(sprockets, maps_prefix)
+        ::Opal::Sprockets::SourceMapHeaderPatch.inject!(maps_prefix)
+      end
 
       @app = Rack::Builder.app do
+        not_found = lambda { |env| [404, {}, []] }
+        use Rack::Deflater
         use Rack::ShowExceptions
-        map('/assets') { run sprockets }
-        map(server.source_maps.prefix) { run server.source_maps } if server.source_map_enabled
-        use Index, server
-        run Rack::Directory.new(server.public_dir)
+        use Index, server if server.use_index
+        if source_map_enabled
+          map(maps_prefix) do
+            use Rack::ConditionalGet
+            use Rack::ETag
+            run maps_app
+          end
+        end
+        map(prefix)      { run sprockets }
+        run Rack::Static.new(not_found, root: server.public_root, urls: server.public_urls)
       end
-    end
-
-    def source_maps
-      @source_maps ||= SourceMapServer.new(@sprockets)
     end
 
     def call(env)
@@ -112,48 +97,37 @@ module Opal
 
       # Returns the html content for the root path. Supports ERB
       def html
-        source = if @index_path
+        if @index_path
           raise "index does not exist: #{@index_path}" unless File.exist?(@index_path)
-          File.read @index_path
-        elsif File.exist? 'index.html'
-          File.read 'index.html'
-        elsif File.exist? 'index.html.erb'
-          File.read 'index.html.erb'
+          Tilt.new(@index_path).render(self)
         else
-          SOURCE
-        end
-
-        ::ERB.new(source).result binding
-      end
-
-      def javascript_include_tag source
-        if @server.debug
-          assets = @server.sprockets[source].to_a
-
-          raise "Cannot find asset: #{source}" if assets.empty?
-
-          scripts = assets.map do |a|
-            %Q{<script src="/assets/#{ a.logical_path }?body=1"></script>}
-          end
-
-          scripts.join "\n"
-        else
-          "<script src=\"/assets/#{source}.js\"></script>"
+          raise "Main asset path not configured (set 'main' within Opal::Server.new block)" if @server.main.nil?
+          source
         end
       end
 
-      SOURCE = <<-HTML
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <title>Opal Server</title>
-  </head>
-  <body>
-    <%= javascript_include_tag @server.main %>
-  </body>
-  </html>
-      HTML
+      def javascript_include_tag name
+        sprockets = @server.sprockets
+        prefix = @server.prefix
+        debug = @server.debug
+
+        ::Opal::Sprockets.javascript_include_tag(name, sprockets: sprockets, prefix: prefix, debug: debug)
+      end
+
+      def source
+        <<-HTML
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Opal Server</title>
+          </head>
+          <body>
+            #{javascript_include_tag @server.main}
+          </body>
+          </html>
+        HTML
+      end
     end
   end
 end
-
