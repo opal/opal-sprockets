@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'sourcemap'
 require 'rack/test'
 
-describe Opal::Server do
+describe Opal::Sprockets::Server do
   include Rack::Test::Methods
 
   let(:maps_prefix) { described_class::SOURCE_MAPS_PREFIX_PATH }
