@@ -30,6 +30,7 @@ describe Opal::Sprockets::Server do
     end
 
     %w[
+      base64.js
       no_requires.js
       jst_file.js
       required_tree_test/required_file1.js
