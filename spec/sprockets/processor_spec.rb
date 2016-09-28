@@ -45,24 +45,24 @@ describe Opal::Processor do
     let(:config) { Opal::Config }
 
     it 'usually require files' do
-      sprockets_context.should_receive(:require_asset).with(stubbed_file)
+      expect(sprockets_context).to receive(:require_asset).with(stubbed_file)
       template.render(sprockets_context)
     end
 
     it 'skips require of stubbed file' do
       config.stubbed_files << stubbed_file.to_s
-      sprockets_context.should_not_receive(:require_asset).with(stubbed_file)
+      expect(sprockets_context).not_to receive(:require_asset).with(stubbed_file)
       template.render(sprockets_context)
     end
 
     it 'marks a stubbed file as loaded' do
       config.stubbed_files << stubbed_file.to_s
       asset = double(dependencies: [], pathname: Pathname('bar'), logical_path: 'bar')
-      environment.stub(:[]).with('bar.js') { asset }
-      environment.stub(:engines) { {'.rb' => described_class, '.opal' => described_class} }
+      allow(environment).to receive(:[]).with('bar.js') { asset }
+      allow(environment).to receive(:engines) { {'.rb' => described_class, '.opal' => described_class} }
 
       code = ::Opal::Sprockets.load_asset('bar', environment)
-      code.should match stubbed_file
+      expect(code).to match(stubbed_file)
     end
   end
 
