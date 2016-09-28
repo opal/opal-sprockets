@@ -7,7 +7,7 @@ opal_path = File.expand_path('../opal')
 if File.exist? opal_path
   gem 'opal', path: opal_path
 else
-  gem 'opal', github: 'opal/opal', branch: 'elia/extract-sprockets'
+  gem 'opal', github: 'opal/opal'
 end
 
 gem 'rack', rack_version if rack_version
