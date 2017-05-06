@@ -6,8 +6,15 @@ module MyApp
     def initialize
       @user = User.new('Bill')
       @user.authenticated?
+    rescue
+      @user = User.new('Bob')
+      @user.authenticated?
+      p @user
     end
   end
 end
 
-MyApp::Application.new
+$app = MyApp::Application.new
+
+p $app
+puts "Done!"
