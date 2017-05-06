@@ -10,7 +10,7 @@ module Opal
     #
     # @example
     #
-    #   Opal::Sprockets.load_asset(Rails.application.assets, 'application')
+    #   Opal::Sprockets.load_asset('application')
     #
     # @example Will output the following JavaScript:
     #
@@ -70,7 +70,7 @@ module Opal
         scripts << %{<script src="#{prefix}/#{name}.js"></script>}
       end
 
-      scripts << %{<script>#{::Opal::Sprockets.load_asset(name, sprockets)}</script>}
+      scripts << %{<script>#{::Opal::Sprockets.load_asset(name)}</script>}
 
       scripts.join "\n"
     end
