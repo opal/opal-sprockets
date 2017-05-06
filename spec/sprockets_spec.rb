@@ -16,9 +16,9 @@ describe Opal::Sprockets do
       expect(code).to include('Opal.loaded(["opal","corelib/runtime"]);')
     end
 
-    it 'returns an empty string if the asset is not found' do
+    it 'tries to load an asset if it is registered as opal module' do
       code = described_class.load_asset('foo', env)
-      expect(code).to eq('')
+      expect(code).to include('if (Opal.modules["foo"]) Opal.load("foo");')
     end
   end
 
