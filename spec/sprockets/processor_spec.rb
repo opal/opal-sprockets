@@ -61,7 +61,7 @@ describe Opal::Processor do
       allow(environment).to receive(:[]).with('bar.js') { asset }
       allow(environment).to receive(:engines) { {'.rb' => described_class, '.opal' => described_class} }
 
-      code = ::Opal::Sprockets.load_asset('bar', environment)
+      code = ::Opal::Sprockets.load_asset('bar')
       expect(code).to match(stubbed_file)
     end
   end
