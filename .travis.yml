@@ -8,9 +8,9 @@ matrix:
       env: RACK_VERSION='< 2.0.0' SPROCKETS_VERSION='~> 3.5.2'
     - rvm: 2.2.5
       env: SPROCKETS_VERSION='~> 3.6.3'
-    - rvm: 2.3.3
-      env: SPROCKETS_VERSION='~> 3.7.0'
-    - rvm: 2.4.0-preview1
+    - rvm: 2.3.4
+      env: SPROCKETS_VERSION='~> 3.7.1'
+    - rvm: 2.4.0
 
 notifications:
   irc: "irc.freenode.org#opal"
