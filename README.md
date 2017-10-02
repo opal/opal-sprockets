@@ -10,6 +10,19 @@ Add to your `Gemfile`:
 gem "opal-sprockets"
 ```
 
+### A note on the version number
+
+The version number is an attempt to keep track and support different combinations of both opal and sprockets without cluttering the code with giant `if`s and conditional requires. The structure is roughly as follows:
+
+`<basic version number>.<opal version number>.<sprockets version numbers>`
+
+For example version `0.4.1.0.11.0.rc1.3.1` is build taking into account the following components:
+
+    BASE_VERSION = '0.4.1'
+    OPAL_VERSION = '0.11.0.rc1'
+    SPROCKETS_VERSION = '3.1'
+
+
 ## Usage
 
 Sprockets uses a set of load paths to resolve dependencies. This gem extends
@@ -104,6 +117,7 @@ And then visit `http://127.0.0.1:9292` in any browser.
 (The MIT License)
 
 Copyright (C) 2013 by Adam Beynon
+Copyright (C) 2013 by Elia Schito
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
