@@ -112,6 +112,14 @@ $ bundle exec rackup
 
 And then visit `http://127.0.0.1:9292` in any browser.
 
+### Source Maps
+
+`opal-sprockets` will create source maps for all assets by default. You can disable this with:
+
+```ruby
+Opal::Config.source_map_enabled = false
+```
+
 ## License
 
 (The MIT License)
