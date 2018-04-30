@@ -36,7 +36,7 @@ module Opal
 
       "if (typeof(Opal) !== 'undefined') { "\
         "Opal.loaded(#{loaded.to_json}); "\
-        "if (typeof(OpalLoaded) === 'undefined') Opal.loaded(OpalLoaded); "\
+        "if (typeof(OpalLoaded) !== 'undefined') Opal.loaded(OpalLoaded); "\
         "if (Opal.modules[#{name.to_json}]) Opal.load(#{name.to_json}); "\
       "}"
     end
