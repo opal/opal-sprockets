@@ -1,0 +1,9 @@
+# Changelog
+
+## [v0.4.1](https://github.com/opal/opal-sprockets/compare/v0.4.0.0.10.0.3.0.0...v0.4.1.0.11.0.3.1)
+
+*30 December 2017*
+
+- Added support for Opal 0.11
+- `Opal::Sprockets.load_asset` now works without the need to access the sprockets environment (needed by `sprockets-rails` v3+)
+- Documentation updates
