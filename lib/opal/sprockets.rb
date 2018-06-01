@@ -64,7 +64,7 @@ module Opal
 
       if debug
         asset.to_a.map do |dependency|
-          scripts << %{<script src="#{prefix}/#{dependency.logical_path}?body=1"></script>}
+          scripts << %{<script src="#{prefix}/#{dependency.digest_path}?body=1"></script>}
         end
       else
         scripts << %{<script src="#{prefix}/#{name}.js"></script>}
