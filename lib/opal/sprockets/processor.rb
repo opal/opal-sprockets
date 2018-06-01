@@ -154,7 +154,9 @@ module Opal::Sprockets::Processor
       path_extnames     = -> path  { File.basename(path).scan(/\.[^.]+/) }
       processed_by_opal = -> asset { (path_extnames[asset.filename] & opal_extnames).any? }
 
-      unless processed_by_opal[asset]
+      if processed_by_opal[asset]
+        input[:data]
+      else
         [
           input[:data],
           %{if (typeof(OpalLoaded) === 'undefined') OpalLoaded = []; OpalLoaded.push(#{input[:name].to_json});}
