@@ -1,8 +1,11 @@
 require 'opal'
 require 'user'
+require 'native'
 
 module MyApp
   class Application
+    attr_reader :user
+
     def initialize
       @user = User.new('Bill')
       @user.authenticated?
@@ -18,3 +21,5 @@ $app = MyApp::Application.new
 
 p $app
 puts "Done!"
+
+$$.document.write("user is #{$app.user.name}")
