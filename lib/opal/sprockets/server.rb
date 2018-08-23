@@ -1,7 +1,6 @@
 require 'rack'
 require 'opal/source_map'
 require 'sprockets'
-require 'sourcemap'
 require 'erb'
 require 'opal/sprockets/source_map_server'
 require 'opal/sprockets/source_map_header_patch'
