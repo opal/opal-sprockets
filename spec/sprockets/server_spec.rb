@@ -77,7 +77,12 @@ describe Opal::Sprockets::Server do
       get maps_prefix+'/source_map/subfolder/other_file.self.map'
       expect(last_response).to be_ok
       map = ::SourceMap::Map.from_json(last_response.body)
-      expect(map.sources).to include(maps_prefix+'/source_map/subfolder/other_file.rb')
+
+      if Gem::Version.new(Opal::VERSION) >= Gem::Version.new('0.11.2')
+        expect(map.sources).to include(maps_prefix+'/source_map/subfolder/other_file.rb')
+      else
+        expect(map.sources).to include(maps_prefix+'/source_map/subfolder/other_file')
+      end
     end
   end
 
