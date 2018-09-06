@@ -1,9 +1,9 @@
 require 'set'
+require 'base64'
 require 'tilt/opal'
 require 'sprockets'
 require 'opal/builder'
 require 'opal/sprockets/path_reader'
-require 'opal/sprockets/source_map_server'
 
 $OPAL_SOURCE_MAPS = {}
 
@@ -49,11 +49,13 @@ module Opal
       process_required_trees(compiler.required_trees, context)
 
       if Opal::Config.source_map_enabled
-        map_contents = compiler.source_map.as_json.to_json
-        ::Opal::SourceMapServer.set_map_cache(sprockets, logical_path, map_contents)
+        map_data = compiler.source_map.as_json
+        # Opal 0.11 doesn't fill sourcesContent
+        add_sources_content_if_missing(map_data, data)
+        "#{result}\n#{to_data_uri_comment(map_data.to_json)}"
+      else
+        result.to_s
       end
-
-      result.to_s
     end
 
     def self.sprockets_extnames_regexp(sprockets)
@@ -134,6 +136,14 @@ module Opal
 
 
     private
+
+    def add_sources_content_if_missing(data, content)
+      data[:sourcesContent] = data.delete(:sourcesContent) || data.delete('sourcesContent') || [content]
+    end
+
+    def to_data_uri_comment(map_to_json)
+      "//# sourceMappingURL=data:application/json;base64,#{Base64.encode64(map_to_json).delete("\n")}"
+    end
 
     def stubbed_files
       ::Opal::Config.stubbed_files
