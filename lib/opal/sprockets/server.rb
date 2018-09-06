@@ -1,15 +1,10 @@
-require 'rack'
-require 'opal/source_map'
-require 'sprockets'
 require 'erb'
-require 'opal/sprockets/source_map_server'
-require 'opal/sprockets/source_map_header_patch'
+require 'rack'
+require 'sprockets'
 
 module Opal
   module Sprockets
     class Server
-      SOURCE_MAPS_PREFIX_PATH = '/__OPAL_SOURCE_MAPS__'
-
       attr_accessor :debug, :use_index, :index_path, :main, :public_root,
                     :public_urls, :sprockets, :prefix
 
@@ -51,25 +46,12 @@ module Opal
       def create_app
         server, sprockets, prefix = self, @sprockets, self.prefix
         sprockets.logger.level ||= Logger::DEBUG
-        source_map_enabled = self.source_map_enabled
-        if source_map_enabled
-          maps_prefix = SOURCE_MAPS_PREFIX_PATH
-          maps_app = SourceMapServer.new(sprockets, maps_prefix)
-          ::Opal::Sprockets::SourceMapHeaderPatch.inject!(maps_prefix)
-        end
 
         @app = Rack::Builder.app do
           not_found = lambda { |env| [404, {}, []] }
           use Rack::Deflater
           use Rack::ShowExceptions
           use Index, server if server.use_index
-          if source_map_enabled
-            map(maps_prefix) do
-              use Rack::ConditionalGet
-              use Rack::ETag
-              run maps_app
-            end
-          end
           map(prefix)      { run sprockets }
           run Rack::Static.new(not_found, root: server.public_root, urls: server.public_urls)
         end

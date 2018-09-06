@@ -17,6 +17,18 @@ matrix:
     - rvm: 2.4.4
       env: SPROCKETS_VERSION='~> 3.7.1'
     - rvm: 2.5.1
+      env: SPROCKETS_VERSION='~> 3.7.1'
+
+    - rvm: 2.1.10
+      env: OPAL_VERSION='~> 0.11.3' RACK_VERSION='< 2.0.0' SPROCKETS_VERSION='~> 3.4.1'
+    - rvm: 2.2.10
+      env: OPAL_VERSION='~> 0.11.3' SPROCKETS_VERSION='~> 3.5.2'
+    - rvm: 2.3.7
+      env: OPAL_VERSION='~> 0.11.3' SPROCKETS_VERSION='~> 3.6.3'
+    - rvm: 2.4.4
+      env: OPAL_VERSION='~> 0.11.3' SPROCKETS_VERSION='~> 3.7.1'
+    - rvm: 2.5.1
+      env: OPAL_VERSION='~> 0.11.3' SPROCKETS_VERSION='~> 3.7.1'
 
 notifications:
   irc: "irc.freenode.org#opal"
