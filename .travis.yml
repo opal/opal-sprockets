@@ -1,5 +1,11 @@
 language: ruby
 
+branches:
+  only:
+  - master
+  - /^.*-stable$/
+  - /^.*ci-check$/
+
 matrix:
   include:
     - rvm: 2.1.10
