@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version      = Opal::Sprockets::VERSION
   s.authors      = ['Elia Schito', 'Adam Beynon']
   s.email        = 'elia@schito.me'
-  s.homepage     = 'http://opalrb.org'
+  s.homepage     = 'https://github.com/opal/opal-sprockets#readme'
   s.summary      = 'Sprockets support for Opal.'
   s.description  = 'Sprockets support for Opal.'
 
