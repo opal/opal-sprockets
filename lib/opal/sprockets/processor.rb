@@ -5,8 +5,6 @@ require 'sprockets'
 require 'opal/builder'
 require 'opal/sprockets/path_reader'
 
-$OPAL_SOURCE_MAPS = {}
-
 module Opal
   # Internal: The Processor class is used to make ruby files (with .rb or .opal
   #   extensions) available to any sprockets based server. Processor will then
