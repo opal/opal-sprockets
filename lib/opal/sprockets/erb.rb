@@ -19,11 +19,5 @@ module Opal
   end
 end
 
-if Sprockets.respond_to? :register_transformer
-  extra_args = [{mime_type: 'application/javascript', silence_deprecation: true}]
-else
-  extra_args = []
-end
-
 Tilt.register 'opalerb', Opal::ERB::Processor
-Sprockets.register_engine '.opalerb', Opal::ERB::Processor, *extra_args
+Sprockets.register_engine '.opalerb', Opal::ERB::Processor, mime_type: 'application/javascript', silence_deprecation: true
