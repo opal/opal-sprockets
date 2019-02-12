@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.3](https://github.com/opal/opal-sprockets/compare/v0.4.2.0.11.0.3.1...v0.4.3.0.11.0.3.7)
+
+*13 February 2019*
+
 - Drop support for older Sprockets versions
 
 
