@@ -1,6 +1,6 @@
 # Opal Sprockets
 
-_Adds sprockets support for [Opal](http://opalrb.org)._
+_Adds sprockets support for [Opal](http://opalrb.com)._
 
 ## Installation
 
