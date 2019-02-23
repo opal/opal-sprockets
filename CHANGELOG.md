@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.4.4](https://github.com/opal/opal-sprockets/compare/v0.4.3.0.11.0.3.7...v0.4.4.1.0.0.3.7)
+
+*12 May 2019*
+
+- Target Opal v1.0
+
+
 ## [v0.4.3](https://github.com/opal/opal-sprockets/compare/v0.4.2.0.11.0.3.1...v0.4.3.0.11.0.3.7)
 
 *13 February 2019*
