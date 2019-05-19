@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'opal', '~> 0.11.0'
+require_relative "../lib/opal/sprockets/version.rb"
+gem 'opal', "~> #{Opal::Sprockets::OPAL_VERSION}"
 gem 'opal-sprockets'
