@@ -11,22 +11,42 @@ describe Opal::Sprockets do
       expect(code).to include('Opal.load("console");')
     end
 
-    it 'marks as loaded "opal" plus all non opal assets' do
-      code = described_class.load_asset('corelib/runtime')
-      expect(code).to include('Opal.loaded(["opal","corelib/runtime"].concat(OpalLoaded || []));')
+    it 'marks as loaded stubs and all non-opal assets' do
+      allow(Opal::Config).to receive(:stubbed_files) { %w[foo bar] }
+
+      code = described_class.load_asset('baz')
+      expect(code).to include('Opal.loaded(["foo","bar"].concat(OpalLoaded || []));')
+      expect(code).to include('Opal.load("baz");')
     end
 
     it 'tries to load an asset if it is registered as opal module' do
       code = described_class.load_asset('foo')
       expect(code).to include('Opal.load("foo");')
     end
-  end
 
-  it 'warns the user that passing an env is not needed, only once' do
-    expect(described_class).to receive(:warn).once
-    described_class.load_asset('foo', env)
-    described_class.load_asset('foo', env)
-    described_class.load_asset('foo', env)
+    it 'warns the user that passing an env is not needed, only once' do
+      expect(described_class).to receive(:warn).once
+      described_class.load_asset('foo', env)
+      described_class.load_asset('foo', env)
+      described_class.load_asset('foo', env)
+      described_class.load_asset('foo', 'bar', env)
+      described_class.load_asset('foo', 'bar', env)
+    end
+
+    it 'accepts multiple names' do
+      code = described_class.load_asset('foo', 'bar')
+      expect(code).to include('Opal.load("foo");')
+      expect(code).to include('Opal.load("bar");')
+    end
+
+    it 'detects deprecated env with multiple names' do
+      code = described_class.load_asset('foo', 'bar', env)
+      expect(code).to eq([
+        'Opal.loaded(OpalLoaded || []);',
+        'Opal.load("foo");',
+        'Opal.load("bar");',
+      ].join("\n"))
+    end
   end
 
   describe '.javascript_include_tag' do

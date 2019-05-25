@@ -32,14 +32,6 @@ module Opal
 
       compiler_options = self.compiler_options.merge(file: logical_path)
 
-      # Opal will be loaded immediately to as the runtime redefines some crucial
-      # methods such that need to be implemented as soon as possible:
-      #
-      # E.g. It forwards .toString() to .$to_s() for Opal objects including Array.
-      #      If .$to_s() is not implemented and some other lib is loaded before
-      #      corelib/* .toString results in an `undefined is not a function` error.
-      compiler_options.merge!(requirable: false) if logical_path == 'opal'
-
       compiler = Compiler.new(data, compiler_options)
       result = compiler.compile
 

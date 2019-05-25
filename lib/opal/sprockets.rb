@@ -14,28 +14,31 @@ module Opal
     #
     # @example Will output the following JavaScript:
     #
-    #   if (typeof(Opal) !== 'undefined') {
-    #     Opal.loaded("opal");
-    #     Opal.loaded("jquery.self");
-    #     Opal.load("application");
-    #   }
+    #   Opal.loaded("jquery.self", "yet_another_carousel.self");
+    #   Opal.load("opal", "application");
     #
     # @param name [String] The logical name of the main asset to be loaded (without extension)
     #
     # @return [String] JavaScript code
-    def self.load_asset(name, _sprockets = :deprecated)
-      if _sprockets != :deprecated && !@load_asset_warning_displayed
-        @load_asset_warning_displayed = true
-        warn "Passing a sprockets environment to Opal::Sprockets.load_asset no more needed.\n  #{caller(1, 3).join("\n  ")}"
+    def self.load_asset(*names)
+      if names.last.is_a?(::Sprockets::Environment)
+        unless @load_asset_warning_displayed
+          @load_asset_warning_displayed = true
+          warn "Passing a sprockets environment to Opal::Sprockets.load_asset no more needed.\n  #{caller(1, 3).join("\n  ")}"
+        end
+        names.pop
       end
 
-      name = name.sub(/(\.(js|rb|opal))*\z/, '')
-      stubbed_files     = ::Opal::Config.stubbed_files
+      names = names.map { |name| name.sub(/(\.(js|rb|opal))*\z/, '') }
+      stubbed = ::Opal::Config.stubbed_files.to_a
 
-      loaded = ['opal', 'corelib/runtime'] + stubbed_files.to_a
+      loaded = 'OpalLoaded || []'
+      loaded = "#{stubbed.to_json}.concat(#{loaded})" if stubbed.any?
 
-      "Opal.loaded(#{loaded.to_json}.concat(OpalLoaded || [])); "\
-      "Opal.load(#{name.to_json}); "\
+      [
+        "Opal.loaded(#{loaded});",
+        *names.map { |name| "Opal.load(#{name.to_json});" }
+      ].join("\n")
     end
 
     # Mark an asset as already loaded.
@@ -76,7 +79,7 @@ module Opal
         scripts << %{<script src="#{prefix}/#{name}.js"></script>}
       end
 
-      scripts << %{<script>#{::Opal::Sprockets.load_asset(name)}</script>}
+      scripts << %{<script>#{load_asset('opal', name)}</script>}
 
       scripts.join "\n"
     end
