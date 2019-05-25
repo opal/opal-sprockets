@@ -38,6 +38,15 @@ module Opal
       "Opal.load(#{name.to_json}); "\
     end
 
+    # Mark an asset as already loaded.
+    # This is useful for requiring JavaScript files which are not managed by Opal's laoding system.
+    #
+    # @param [String] name The "logical name" of the asset
+    # @return [String] JavaScript code
+    def self.loaded_asset(name)
+      %{if (typeof(OpalLoaded) === 'undefined') OpalLoaded = []; OpalLoaded.push(#{name.to_json});}
+    end
+
     # Generate a `<script>` tag for Opal assets.
     #
     # @param [String] name     The logical name of the asset to be loaded (without extension)

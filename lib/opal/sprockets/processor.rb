@@ -165,10 +165,7 @@ module Opal::Sprockets::Processor
       if processed_by_opal[asset]
         input[:data]
       else
-        [
-          input[:data],
-          %{if (typeof(OpalLoaded) === 'undefined') OpalLoaded = []; OpalLoaded.push(#{input[:name].to_json});}
-        ].join(";\n")
+        "#{input[:data]}\n#{Opal::Sprockets.loaded_asset(input[:name])}"
       end
     end
   end
