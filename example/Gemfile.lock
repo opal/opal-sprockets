@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    opal-sprockets (0.4.4.1.0.3.7)
+    opal-sprockets (0.4.5.1.0.3.7)
       opal (~> 1.0.0)
       sprockets (~> 3.7)
       tilt (>= 1.4)
