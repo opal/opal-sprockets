@@ -1,3 +1,11 @@
+PATH
+  remote: ..
+  specs:
+    opal-sprockets (0.4.4.1.0.3.7)
+      opal (~> 1.0.0)
+      sprockets (~> 3.7)
+      tilt (>= 1.4)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -6,10 +14,6 @@ GEM
     opal (1.0.0)
       ast (>= 2.3.0)
       parser (= 2.5.3.0)
-    opal-sprockets (0.4.4.1.0.3.7)
-      opal (~> 1.0.0)
-      sprockets (~> 3.7)
-      tilt (>= 1.4)
     parser (2.5.3.0)
       ast (~> 2.4.0)
     rack (2.0.7)
@@ -23,7 +27,7 @@ PLATFORMS
 
 DEPENDENCIES
   opal (~> 1.0.0)
-  opal-sprockets
+  opal-sprockets!
 
 BUNDLED WITH
    1.17.3

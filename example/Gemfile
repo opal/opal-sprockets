@@ -2,4 +2,4 @@ source 'https://rubygems.org'
 
 require_relative "../lib/opal/sprockets/version.rb"
 gem 'opal', "~> #{Opal::Sprockets::OPAL_VERSION}"
-gem 'opal-sprockets'
+gem 'opal-sprockets', path: '..'
