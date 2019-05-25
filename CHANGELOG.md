@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.5](https://github.com/opal/opal-sprockets/compare/v0.4.4.1.0.3.7...v0.4.5.1.0.3.7)
+
+*25 May 2019*
+
+- Opal is now loaded as part of the bootstrap process instead of being marked as preloaded by the processor
+- Simplified code for loading-related scripts
+
+
 ## [v0.4.4](https://github.com/opal/opal-sprockets/compare/v0.4.3.0.11.0.3.7...v0.4.4.1.0.3.7)
 
 *12 May 2019*

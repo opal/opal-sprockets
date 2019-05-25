@@ -1,6 +1,6 @@
 module Opal
   module Sprockets
-    BASE_VERSION = '0.4.4'
+    BASE_VERSION = '0.4.5'
     OPAL_VERSION = '1.0.0'
     SPROCKETS_VERSION = '3.7'
 
