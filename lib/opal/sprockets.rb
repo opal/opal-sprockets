@@ -34,11 +34,8 @@ module Opal
 
       loaded = ['opal', 'corelib/runtime'] + stubbed_files.to_a
 
-      "if (typeof(Opal) !== 'undefined') { "\
-        "Opal.loaded(#{loaded.to_json}); "\
-        "if (typeof(OpalLoaded) !== 'undefined') Opal.loaded(OpalLoaded); "\
-        "if (Opal.modules[#{name.to_json}]) Opal.load(#{name.to_json}); "\
-      "}"
+      "Opal.loaded(#{loaded.to_json}.concat(OpalLoaded || [])); "\
+      "Opal.load(#{name.to_json}); "\
     end
 
     # Generate a `<script>` tag for Opal assets.

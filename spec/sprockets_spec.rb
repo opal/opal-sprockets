@@ -13,12 +13,12 @@ describe Opal::Sprockets do
 
     it 'marks as loaded "opal" plus all non opal assets' do
       code = described_class.load_asset('corelib/runtime')
-      expect(code).to include('Opal.loaded(["opal","corelib/runtime"]);')
+      expect(code).to include('Opal.loaded(["opal","corelib/runtime"].concat(OpalLoaded || []));')
     end
 
     it 'tries to load an asset if it is registered as opal module' do
       code = described_class.load_asset('foo')
-      expect(code).to include('if (Opal.modules["foo"]) Opal.load("foo");')
+      expect(code).to include('Opal.load("foo");')
     end
   end
 
