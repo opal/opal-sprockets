@@ -15,7 +15,7 @@ module Opal
     # @example Will output the following JavaScript:
     #
     #   Opal.loaded("jquery.self", "yet_another_carousel.self");
-    #   Opal.load("opal", "application");
+    #   Opal.require("opal", "application");
     #
     # @param name [String] The logical name of the main asset to be loaded (without extension)
     #
@@ -37,7 +37,7 @@ module Opal
 
       [
         "Opal.loaded(#{loaded});",
-        *names.map { |name| "Opal.load(#{name.to_json});" }
+        *names.map { |name| "Opal.require(#{name.to_json});" }
       ].join("\n")
     end
 
