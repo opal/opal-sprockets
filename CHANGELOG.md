@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.6](https://github.com/opal/opal-sprockets/compare/v0.4.5.1.0.3.7...v0.4.6.1.0.3.7)
+
+*24 July 2019*
+
 - Allow multiple calls to the code produced by `Opal::Sprockets.load_asset`
 
 
