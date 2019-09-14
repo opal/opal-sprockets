@@ -3,7 +3,6 @@ require 'base64'
 require 'tilt/opal'
 require 'sprockets'
 require 'opal/builder'
-require 'opal/sprockets'
 require 'opal/sprockets/path_reader'
 
 module Opal

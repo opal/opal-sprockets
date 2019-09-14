@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.4.8](https://github.com/opal/opal-sprockets/compare/v0.4.7.1.0.3.7...v0.4.8.1.0.3.7)
+
+*14 September 2019*
+
+- Revert the changes ih
+
+
 ## [v0.4.7](https://github.com/opal/opal-sprockets/compare/v0.4.6.1.0.3.7...v0.4.7.1.0.3.7)
 
 *14 September 2019*
