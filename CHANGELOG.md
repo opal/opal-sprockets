@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.4.7](https://github.com/opal/opal-sprockets/compare/v0.4.6.1.0.3.7...v0.4.7.1.0.3.7)
+
+*14 September 2019*
+
+- Require `opal/sprockets` befor calling `Opal::Sprockets.loaded_asset`
+
+
 ## [v0.4.6](https://github.com/opal/opal-sprockets/compare/v0.4.5.1.0.3.7...v0.4.6.1.0.3.7)
 
 *24 July 2019*
