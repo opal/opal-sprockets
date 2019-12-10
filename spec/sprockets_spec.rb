@@ -15,7 +15,7 @@ describe Opal::Sprockets do
       allow(Opal::Config).to receive(:stubbed_files) { %w[foo bar] }
 
       code = described_class.load_asset('baz')
-      expect(code).to include('Opal.loaded(["foo","bar"].concat(OpalLoaded || []));')
+      expect(code).to include(%{Opal.loaded(["foo","bar"].concat(typeof(OpalLoaded) === "undefined" ? [] : OpalLoaded));})
       expect(code).to include('Opal.require("baz");')
     end
 
@@ -42,7 +42,7 @@ describe Opal::Sprockets do
     it 'detects deprecated env with multiple names' do
       code = described_class.load_asset('foo', 'bar', env)
       expect(code).to eq([
-        'Opal.loaded(OpalLoaded || []);',
+        'Opal.loaded(typeof(OpalLoaded) === "undefined" ? [] : OpalLoaded);',
         'Opal.require("foo");',
         'Opal.require("bar");',
       ].join("\n"))
