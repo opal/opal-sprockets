@@ -32,7 +32,7 @@ module Opal
       names = names.map { |name| name.sub(/(\.(js|rb|opal))*\z/, '') }
       stubbed = ::Opal::Config.stubbed_files.to_a
 
-      loaded = 'OpalLoaded || []'
+      loaded = 'typeof(OpalLoaded) === "undefined" ? [] : OpalLoaded'
       loaded = "#{stubbed.to_json}.concat(#{loaded})" if stubbed.any?
 
       [
