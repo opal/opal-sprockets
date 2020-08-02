@@ -7,7 +7,7 @@ describe Opal::Processor do
     cache: nil,
     :[] => nil,
     resolve: pathname.expand_path.to_s,
-    engines: double(keys: %w[.rb .js .opal]),
+    mime_types: {},
   ) }
   let(:sprockets_context) { double(Sprockets::Context,
     logical_path: "foo.#{ext}",
@@ -23,7 +23,17 @@ describe Opal::Processor do
 
     describe %Q{with extension "#{ext}"} do
       it "is registered for '#{ext}' files" do
-        expect(Sprockets.engines[ext]).to eq(described_class)
+        mime_type = Sprockets.mime_types.find { |_,v| v[:extensions].include? ".rb" }.first
+        transformers = Sprockets.transformers[mime_type]
+        case Sprockets::VERSION[0]
+        when '3'
+          expect(transformers.length).to eq(1)
+          transformer = transformers["application/javascript"]
+          expect(transformer).to be_truthy # It's some lambda
+        when '4'
+          transformer = transformers["application/javascript"]
+          expect(transformer.processors).to include(described_class)
+        end
       end
 
       it "compiles and evaluates the template on #render" do

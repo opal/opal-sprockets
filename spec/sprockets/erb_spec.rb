@@ -7,7 +7,7 @@ describe Opal::ERB::Processor do
     cache: nil,
     :[] => nil,
     resolve: pathname.expand_path.to_s,
-    engines: double(keys: %w[.rb .js .erb .opal]),
+    mime_types: {},
   ) }
   let(:sprockets_context) { double(Sprockets::Context,
     logical_path: "foo.#{ext}",

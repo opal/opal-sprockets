@@ -1,5 +1,6 @@
 require 'tilt'
 require 'sprockets'
+require 'opal/sprockets'
 require 'opal/sprockets/processor'
 
 module Opal
@@ -19,5 +20,9 @@ module Opal
   end
 end
 
+# We can use a plain .erb extension now, woo!
+Sprockets.register_mime_type 'application/html+ruby', extensions: ['.opalerb', '.erb', '.html.erb']
+Sprockets.register_transformer 'application/html+ruby', 'application/javascript', Opal::ERB::Processor
+Opal::Sprockets.register_mime_type 'application/html+ruby'
+
 Tilt.register 'opalerb', Opal::ERB::Processor
-Sprockets.register_engine '.opalerb', Opal::ERB::Processor, mime_type: 'application/javascript', silence_deprecation: true

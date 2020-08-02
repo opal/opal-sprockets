@@ -1,6 +1,4 @@
 require 'opal'
-require 'opal/sprockets/processor'
-require 'opal/sprockets/erb'
 require 'opal/sprockets/server'
 
 module Opal
@@ -67,14 +65,12 @@ module Opal
       # Avoid double slashes
       prefix = prefix.chop if prefix.end_with? '/'
 
-      asset = sprockets[name]
+      asset = sprockets[name, accept: "application/javascript", pipeline: debug ? :debug : nil]
       raise "Cannot find asset: #{name}" if asset.nil?
       scripts = []
 
       if debug
-        asset.to_a.map do |dependency|
-          scripts << %{<script src="#{prefix}/#{dependency.digest_path}?body=1"></script>}
-        end
+        scripts << %{<script src="#{prefix}/#{asset.digest_path}"></script>}
       else
         scripts << %{<script src="#{prefix}/#{name}.js"></script>}
       end
@@ -83,5 +79,27 @@ module Opal
 
       scripts.join "\n"
     end
+
+    @mime_types = []
+    def self.register_mime_type(mime_type)
+      @mime_types << mime_type
+    end
+
+    def self.mime_types
+      @mime_types
+    end
+
+    def self.sprockets_extnames_regexp(sprockets, opal_only: false)
+      opal_extnames = sprockets.mime_types.map do |type,hash|
+        hash[:extensions] if !opal_only || Opal::Sprockets.mime_types.include?(type)
+      end.compact.flatten
+
+      opal_extnames << ".js" if !opal_only
+
+      Regexp.union(opal_extnames.map { |i| /#{Regexp.escape(i)}\z/ })
+    end
   end
 end
+
+require 'opal/sprockets/processor'
+require 'opal/sprockets/erb'

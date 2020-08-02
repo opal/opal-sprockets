@@ -3,6 +3,7 @@ require 'base64'
 require 'tilt/opal'
 require 'sprockets'
 require 'opal/builder'
+require 'opal/sprockets'
 require 'opal/sprockets/path_reader'
 
 module Opal
@@ -28,7 +29,7 @@ module Opal
       # thus we need to bake our own logical_path
       filename = context.respond_to?(:filename) ? context.filename : context.pathname.to_s
       root_path_regexp = Regexp.escape(context.root_path)
-      logical_path = filename.gsub(%r{^#{root_path_regexp}/?(.*?)#{sprockets_extnames_regexp}}, '\1')
+      logical_path = filename.gsub(%r{^#{root_path_regexp}/?(.*?#{sprockets_extnames_regexp})}, '\1')
 
       compiler_options = self.compiler_options.merge(file: logical_path)
 
@@ -48,13 +49,37 @@ module Opal
       end
     end
 
-    def self.sprockets_extnames_regexp(sprockets)
-      joined_extnames = (['.js']+sprockets.engines.keys).map { |ext| Regexp.escape(ext) }.join('|')
-      Regexp.new("(#{joined_extnames})*$")
+    def self.call(input)
+      sprockets = input[:environment]
+      data = input[:data]
+      context = sprockets.context_class.new(input)
+
+      js, map = input[:cache].fetch([self.cache_key, input[:filename], data]) do
+        processor = self.new { data }
+        result = processor.render(context)
+
+        lines = result.split("\n", -1)
+        last_line = lines.last
+        map = last_line.split('//# sourceMappingURL=data:application/json;base64,', 2)[1]
+        if map
+          map = JSON.parse(Base64.decode64(map))
+          result = lines[0..-2].join("\n") # Remove the source map from the resulting code.
+        end
+
+        [result, map]
+      end
+
+      if map
+        map["sources"][0] = input[:filename]
+        map = ::Sprockets::SourceMapUtils.format_source_map(map, input)
+        map = ::Sprockets::SourceMapUtils.combine_source_maps(input[:metadata][:map], map)
+      end
+
+      context.metadata.merge(data: js, map: map)
     end
 
     def sprockets_extnames_regexp
-      @sprockets_extnames_regexp ||= self.class.sprockets_extnames_regexp(@sprockets)
+      @sprockets_extnames_regexp ||= Opal::Sprockets.sprockets_extnames_regexp(@sprockets)
     end
 
     def process_requires(requires, context)
@@ -145,16 +170,10 @@ module Opal::Sprockets::Processor
   module PlainJavaScriptLoader
     def self.call(input)
       sprockets = input[:environment]
-      asset = OpenStruct.new(input)
 
-      opal_extnames = sprockets.engines.map do |ext, engine|
-        ext if engine <= ::Opal::Processor
-      end.compact
+      opal_extnames_regexp = Opal::Sprockets.sprockets_extnames_regexp(sprockets, opal_only: true)
 
-      path_extnames     = -> path  { File.basename(path).scan(/\.[^.]+/) }
-      processed_by_opal = -> asset { (path_extnames[asset.filename] & opal_extnames).any? }
-
-      if processed_by_opal[asset]
+      if input[:filename] =~ opal_extnames_regexp
         input[:data]
       else
         "#{input[:data]}\n#{Opal::Sprockets.loaded_asset(input[:name])}"
@@ -163,7 +182,20 @@ module Opal::Sprockets::Processor
   end
 end
 
-Sprockets.register_engine '.rb',  Opal::Processor, mime_type: 'application/javascript', silence_deprecation: true
-Sprockets.register_engine '.opal',  Opal::Processor, mime_type: 'application/javascript', silence_deprecation: true
+Sprockets.register_mime_type 'application/ruby', extensions: ['.rb', '.opal', '.js.rb', '.js.opal']
+Sprockets.register_transformer 'application/ruby', 'application/javascript', Opal::Processor
+Opal::Sprockets.register_mime_type 'application/ruby'
+
+Sprockets.register_mime_type 'application/ruby+ruby', extensions: ['.rb.erb', '.opal.erb', '.js.rb.erb', '.js.opal.erb']
+Sprockets.register_transformer 'application/ruby+ruby', 'application/ruby', Sprockets::ERBProcessor
+Opal::Sprockets.register_mime_type 'application/ruby+ruby'
+
+for type in ['application/ruby', 'application/ruby+ruby'] do
+  Sprockets.register_preprocessor type, Sprockets::DirectiveProcessor.new(
+    comments: ["//", ["/*", "*/"], "#", ["###", "###"]]
+    # Note: // and /**/ don't make sense here, but it's how it's always have been here, so.
+  )
+end
+
 Sprockets.register_postprocessor 'application/javascript', Opal::Sprockets::Processor::PlainJavaScriptLoader
 

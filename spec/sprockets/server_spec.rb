@@ -20,19 +20,19 @@ describe Opal::Sprockets::Server do
   end
 
   it 'serves assets with complex sprockets requires' do
-    asset = app.sprockets['complex_sprockets']
+    asset = app.sprockets['complex_sprockets', accept: "application/javascript"]
     expect(asset).to be_truthy
 
-    assets = asset.to_a.map do |sub_asset|
-      sub_asset.logical_path.gsub(/\.self\.js$/, '.js')
+    assets = asset.metadata[:included].map do |sub_asset|
+      URI.parse(sub_asset).path.split(%r'/fixtures/|/stdlib/').last
     end
 
     %w[
-      base64.js
-      no_requires.js
-      jst_file.js
-      required_tree_test/required_file1.js
-      required_tree_test/required_file2.js
+      base64.rb
+      no_requires.rb
+      jst_file.jst.ejs
+      required_tree_test/required_file1.rb
+      required_tree_test/required_file2.rb
       file_with_directives.js
     ].each do |logical_path|
       expect(assets).to include(logical_path)
@@ -40,40 +40,68 @@ describe Opal::Sprockets::Server do
   end
 
   describe 'source maps' do
-    RSpec::Matchers.define :include_inline_source_map do
+    RSpec::Matchers.define :include_source_map do
       match do |actual_response|
         actual_response.ok? &&
-        actual_response.body.lines.last.start_with?('//# sourceMappingURL=data:application/json;base64,')
+        actual_response.body.lines.last.start_with?('//# sourceMappingURL=')
       end
     end
 
-    def extract_inline_map(response)
+    def extract_map(path, response)
       last_line   = response.body.lines.last
-      b64_encoded = last_line.split('//# sourceMappingURL=data:application/json;base64,', 2)[1]
-      json_string = Base64.decode64(b64_encoded)
+      if last_line.start_with? "//# sourceMappingURL=data:application/json;base64,"
+        b64_encoded = last_line.split('//# sourceMappingURL=data:application/json;base64,', 2)[1]
+        json_string = Base64.decode64(b64_encoded)
+      else
+        map_file = last_line.split('//# sourceMappingURL=', 2)[1].chomp
+        map_file = relative_path(path, map_file)
+        map_file = get map_file
+        json_string = map_file.body
+      end
       JSON.parse(json_string, symbolize_names: true)
     end
 
+    def relative_path(path, file)
+      URI.join("http://example.com/", path, file).path
+    end
+
     it 'serves map for a top level file' do
-      get '/assets/opal_file.js'
-      expect(last_response).to include_inline_source_map
+      path = '/assets/opal_file.debug.js'
+      get path
+      expect(last_response).to include_source_map
 
-      map = extract_inline_map(last_response)
+      map = extract_map(path, last_response)
 
-      expect(map[:sources]).to eq(['opal_file.rb']).or eq(['opal_file'])
-      expect(map[:sourcesContent]).to eq(["require 'opal'\nputs 'hi from opal!'\n"])
+      # Doesn't apply to Sprockets 4.0 map generation
+      #
+      #expect(map[:sources]).to eq(['opal_file.rb']).or eq(['opal_file'])
+      #expect(map[:sourcesContent]).to eq(["require 'opal'\nputs 'hi from opal!'\n"])
+
+      expect(map[:file]).to eq('opal_file.rb')
+      expect(map[:sections].last[:map][:sources]).to eq(['opal_file.source.rb'])
+
+      expect(get(relative_path(path, map[:sections].last[:map][:sources][0])).body.chomp)
+        .to eq("require 'opal'\nputs 'hi from opal!'")
     end
 
     it 'serves map for a subfolder file' do
-      get '/assets/source_map/subfolder/other_file.self.js'
-      expect(last_response).to include_inline_source_map
+      path = '/assets/source_map/subfolder/other_file.debug.js'
+      get path
+      expect(last_response).to include_source_map
 
-      map = extract_inline_map(last_response)
+      map = extract_map(path, last_response)
 
-      expect(map[:sources])
-        .to eq(['source_map/subfolder/other_file.rb'])
-        .or eq(['source_map/subfolder/other_file'])
-      expect(map[:sourcesContent]).to eq(["puts 'other!'\n"])
+      # Doesn't apply to Sprockets 4.0 map generation
+      #
+      #expect(map[:sources])
+      #  .to eq(['source_map/subfolder/other_file.rb'])
+      #  .or eq(['source_map/subfolder/other_file'])
+
+      expect(map[:file]).to eq('source_map/subfolder/other_file.rb')
+      expect(map[:sections].first[:map][:sources]).to eq(['other_file.source.rb'])
+
+      expect(get(relative_path(path, map[:sections][0][:map][:sources][0])).body.chomp)
+        .to eq("puts 'other!'")
     end
   end
 end
