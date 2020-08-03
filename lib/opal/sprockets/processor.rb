@@ -95,6 +95,9 @@ module Opal
     def process_required_trees(required_trees, context)
       return if required_trees.empty?
 
+      # Let's try to appease Rails, which happens to load this class in a different way
+      file = file || context.filename
+
       # This is the root dir of the logical path, we need this because
       # the compiler gives us the path relative to the file's logical path.
       dirname = File.dirname(file).gsub(/#{Regexp.escape File.dirname(context.logical_path)}#{REGEXP_END}/, '')
@@ -127,9 +130,9 @@ module Opal
           path = Pathname(path)
           pathname = path.relative_path_from(dirname).to_s
 
-          if name.to_s == file  then next
+          if path.to_s == file  then next
           elsif path.directory? then context.depend_on(path.to_s)
-          else context.require_asset(pathname)
+          else context.require_asset(pathname.sub(sprockets_extnames_regexp, ''))
           end
         end
       end
