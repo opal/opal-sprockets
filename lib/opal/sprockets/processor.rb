@@ -29,7 +29,7 @@ module Opal
       # thus we need to bake our own logical_path
       filename = context.respond_to?(:filename) ? context.filename : context.pathname.to_s
       root_path_regexp = Regexp.escape(context.root_path)
-      logical_path = filename.gsub(%r{^#{root_path_regexp}/?(.*?#{sprockets_extnames_regexp})}, '\1')
+      logical_path = filename.gsub(%r{^#{root_path_regexp}/?(.*?)}, '\1')
 
       compiler_options = self.compiler_options.merge(file: logical_path)
 
@@ -54,7 +54,7 @@ module Opal
       data = input[:data]
       context = sprockets.context_class.new(input)
 
-      js, map = input[:cache].fetch([self.cache_key, input[:filename], data]) do
+      js, map, metadata = input[:cache].fetch([self.cache_key, input[:filename], data]) do
         processor = self.new { data }
         result = processor.render(context)
 
@@ -66,7 +66,7 @@ module Opal
           result = lines[0..-2].join("\n") # Remove the source map from the resulting code.
         end
 
-        [result, map]
+        [result, map, context.metadata]
       end
 
       if map
@@ -75,7 +75,7 @@ module Opal
         map = ::Sprockets::SourceMapUtils.combine_source_maps(input[:metadata][:map], map)
       end
 
-      context.metadata.merge(data: js, map: map)
+      metadata.merge(data: js, map: map)
     end
 
     def sprockets_extnames_regexp
@@ -117,7 +117,6 @@ module Opal
         end
 
         context.depend_on required_tree.to_s
-
         environment = context.environment
 
         processor = ::Sprockets::DirectiveProcessor.new
