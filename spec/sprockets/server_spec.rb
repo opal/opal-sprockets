@@ -40,26 +40,56 @@ describe Opal::Sprockets::Server do
   end
 
   it 'recompiles the asset when its dependencies change' do
-    does_include = proc do |it, what, what_not=[]|
+    does_include = proc do |it, what, what_not=[], what_else=nil, what_else_not=nil|
+      expect(it).to include what_else if what_else
+      expect(it).not_to include what_else_not if what_else_not
       what.each { |i| expect(it).to include %Q'modules["required_tree_test/required_file#{i}"]' }
-      what_not.each { |i| expect(what_not).not_to include %Q'modules["required_tree_test/required_file#{i}"]' }
+      what_not.each { |i| expect(it).not_to include %Q'modules["required_tree_test/required_file#{i}"]' }
     end
 
-    asset = app.sprockets['require_tree_test', accept: "application/javascript"]
-    expect(asset).to be_truthy
-    does_include.(asset.to_s, [1,2], [3])
-    get '/assets/require_tree_test.js'
-    does_include.(last_response.body, [1,2], [3])
+    ["default", "debug"].each do |pipeline|
+      asset = app.sprockets['require_tree_test', pipeline: pipeline, accept: "application/javascript"]
+      expect(asset).to be_truthy
+      does_include.(asset.to_s, [1,2], [3], nil, "UNIQUESTRING")
+      get "/assets/require_tree_test.#{pipeline}.js"
+      does_include.(last_response.body, [1,2], [3], nil, "UNIQUESTRING")
 
-    File.write(__dir__+"/../fixtures/required_tree_test/required_file3.rb", "p 3")
+      sleep 1 # Make sure to modify mtime
 
-    asset = app.sprockets['require_tree_test', accept: "application/javascript"]
-    expect(asset).to be_truthy
-    does_include.(asset.to_s, [1,2,3])
-    get '/assets/require_tree_test.js'
-    does_include.(last_response.body, [1,2,3])
-  ensure
-    File.unlink(__dir__+"/../fixtures/required_tree_test/required_file3.rb") rescue nil
+      File.write(__dir__+"/../fixtures/required_tree_test/required_file2.rb", "p 'UNIQUESTRING1'")
+
+      asset = app.sprockets['require_tree_test', pipeline: pipeline, accept: "application/javascript"]
+      expect(asset).to be_truthy
+      does_include.(asset.to_s, [1,2], [3], "UNIQUESTRING1")
+      get "/assets/require_tree_test.#{pipeline}.js"
+      does_include.(last_response.body, [1,2], [3], "UNIQUESTRING1")
+
+      sleep 1 # Make sure to modify mtime
+
+      File.write(__dir__+"/../fixtures/required_tree_test/required_file2.rb", "p 'UNIQUESTRING2'")
+
+      asset = app.sprockets['require_tree_test', pipeline: pipeline, accept: "application/javascript"]
+      expect(asset).to be_truthy
+      does_include.(asset.to_s, [1,2], [3], "UNIQUESTRING2")
+      get "/assets/require_tree_test.#{pipeline}.js"
+      does_include.(last_response.body, [1,2], [3], "UNIQUESTRING2")
+
+      sleep 1 # Make sure to modify mtime
+
+      File.write(__dir__+"/../fixtures/required_tree_test/required_file2.rb", "p 'UNIQUESTRING3'")
+      File.write(__dir__+"/../fixtures/required_tree_test/required_file3.rb", "p 3")
+
+      asset = app.sprockets['require_tree_test', pipeline: pipeline, accept: "application/javascript"]
+      expect(asset).to be_truthy
+      does_include.(asset.to_s, [1,2,3], [], "UNIQUESTRING3")
+      get "/assets/require_tree_test.#{pipeline}.js"
+      does_include.(last_response.body, [1,2], [], "UNIQUESTRING3") # fails with 3 - it doesn't get new files
+
+      sleep 1 # Make sure to modify mtime
+    ensure
+      File.write(__dir__+"/../fixtures/required_tree_test/required_file2.rb", "p 2\n")
+      File.unlink(__dir__+"/../fixtures/required_tree_test/required_file3.rb") rescue nil
+    end
   end
 
   describe 'source maps' do

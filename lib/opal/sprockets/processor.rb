@@ -55,15 +55,14 @@ module Opal
       context = sprockets.context_class.new(input)
 
       js, map, dependencies, required = input[:cache].fetch([self.cache_key, input[:filename], data]) do
-        processor = self.new { data }
+        processor = self.new(input[:filename]) { data }
         result = processor.render(context)
 
-        lines = result.split("\n", -1)
-        last_line = lines.last
+        last_line = result.lines.last
         map = last_line.split('//# sourceMappingURL=data:application/json;base64,', 2)[1]
         if map
           map = JSON.parse(Base64.decode64(map))
-          result = lines[0..-2].join("\n") # Remove the source map from the resulting code.
+          result = result.lines[0..-2].join # Remove the source map from the resulting code.
         end
 
         [result, map, context.metadata[:dependencies], context.metadata[:required]]
@@ -100,9 +99,6 @@ module Opal
     def process_required_trees(required_trees, context)
       return if required_trees.empty?
 
-      # Let's try to appease Rails, which happens to load this class in a different way
-      file = file || context.filename
-
       # This is the root dir of the logical path, we need this because
       # the compiler gives us the path relative to the file's logical path.
       dirname = File.dirname(file).gsub(/#{Regexp.escape File.dirname(context.logical_path)}#{REGEXP_END}/, '')
@@ -133,10 +129,12 @@ module Opal
         absolute_paths.each do |path|
           path = Pathname(path)
           pathname = path.relative_path_from(dirname).to_s
+          pathname_noext = pathname.sub(sprockets_extnames_regexp, '')
 
-          if path.to_s == file  then next
+          if path.to_s == name then next
+          elsif ::Opal::Config.stubbed_files.include?(pathname_noext) then next
           elsif path.directory? then context.depend_on(path.to_s)
-          else context.require_asset(pathname.sub(sprockets_extnames_regexp, ''))
+          else context.require_asset(pathname_noext)
           end
         end
       end
