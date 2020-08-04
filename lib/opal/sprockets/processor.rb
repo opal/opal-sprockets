@@ -54,7 +54,7 @@ module Opal
       data = input[:data]
       context = sprockets.context_class.new(input)
 
-      js, map, metadata = input[:cache].fetch([self.cache_key, input[:filename], data]) do
+      js, map, dependencies, required = input[:cache].fetch([self.cache_key, input[:filename], data]) do
         processor = self.new { data }
         result = processor.render(context)
 
@@ -66,7 +66,7 @@ module Opal
           result = lines[0..-2].join("\n") # Remove the source map from the resulting code.
         end
 
-        [result, map, context.metadata]
+        [result, map, context.metadata[:dependencies], context.metadata[:required]]
       end
 
       if map
@@ -75,7 +75,12 @@ module Opal
         map = ::Sprockets::SourceMapUtils.combine_source_maps(input[:metadata][:map], map)
       end
 
-      metadata.merge(data: js, map: map)
+      metadata = context.metadata.dup
+      metadata[:data] = js
+      metadata[:map] = map if map
+      metadata[:dependencies] += dependencies
+      metadata[:required] += required
+      metadata
     end
 
     def sprockets_extnames_regexp
