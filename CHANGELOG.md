@@ -1,17 +1,24 @@
 # Changelog
 
+## [v0.4.9](https://github.com/opal/opal-sprockets/compare/v0.4.8.1.0.3.7...v0.4.9.1.0.3.7)
+
+*11 September 2020*
+
+- Avoid OpalLoaded undefined when applications have no dependencies.
+
+
 ## [v0.4.8](https://github.com/opal/opal-sprockets/compare/v0.4.7.1.0.3.7...v0.4.8.1.0.3.7)
 
 *14 September 2019*
 
-- Revert the changes ih
+- Revert the changes in 0.4.7
 
 
 ## [v0.4.7](https://github.com/opal/opal-sprockets/compare/v0.4.6.1.0.3.7...v0.4.7.1.0.3.7)
 
 *14 September 2019*
 
-- Require `opal/sprockets` befor calling `Opal::Sprockets.loaded_asset`
+- Require `opal/sprockets` before calling `Opal::Sprockets.loaded_asset`
 
 
 ## [v0.4.6](https://github.com/opal/opal-sprockets/compare/v0.4.5.1.0.3.7...v0.4.6.1.0.3.7)
