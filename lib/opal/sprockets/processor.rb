@@ -110,21 +110,6 @@ module Opal
       end
     end
 
-    # @deprecated
-    def self.stubbed_files
-      warn "Deprecated: `::Opal::Processor.stubbed_files' is deprecated, use `::Opal::Config.stubbed_files' instead"
-      puts caller(5)
-      ::Opal::Config.stubbed_files
-    end
-
-    # @deprecated
-    def self.stub_file(name)
-      warn "Deprecated: `::Opal::Processor.stub_file' is deprecated, use `::Opal::Config.stubbed_files << #{name.inspect}.to_s' instead"
-      puts caller(5)
-      ::Opal::Config.stubbed_files << name.to_s
-    end
-
-
     private
 
     def add_sources_content_if_missing(data, content)
@@ -166,4 +151,3 @@ end
 Sprockets.register_engine '.rb',  Opal::Processor, mime_type: 'application/javascript', silence_deprecation: true
 Sprockets.register_engine '.opal',  Opal::Processor, mime_type: 'application/javascript', silence_deprecation: true
 Sprockets.register_postprocessor 'application/javascript', Opal::Sprockets::Processor::PlainJavaScriptLoader
-
