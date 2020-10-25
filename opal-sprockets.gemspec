@@ -1,25 +1,37 @@
-# -*- encoding: utf-8 -*-
-require File.expand_path('../lib/opal/sprockets/version', __FILE__)
+require_relative 'lib/opal/sprockets/version'
 
-Gem::Specification.new do |s|
-  s.name         = 'opal-sprockets'
-  s.version      = Opal::Sprockets::VERSION
-  s.authors      = ['Elia Schito', 'Adam Beynon']
-  s.email        = 'elia@schito.me'
-  s.homepage     = 'https://github.com/opal/opal-sprockets#readme'
-  s.summary      = 'Sprockets support for Opal.'
-  s.description  = 'Sprockets support for Opal.'
+Gem::Specification.new do |spec|
+  spec.name         = 'opal-sprockets'
+  spec.version      = Opal::Sprockets::VERSION
+  spec.authors      = ['Elia Schito', 'Adam Beynon']
+  spec.email        = 'elia@schito.me'
 
-  s.files          = `git ls-files`.split("\n")
-  s.test_files     = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.require_paths  = ['lib']
+  spec.summary      = 'Sprockets support for Opal.'
+  spec.homepage     = 'https://github.com/opal/opal-sprockets#readme'
+  spec.license      = 'MIT'
 
-  s.add_dependency 'sprockets', "~> #{Opal::Sprockets::SPROCKETS_VERSION}"
-  s.add_dependency 'opal', "~> #{Opal::Sprockets::OPAL_VERSION}"
-  s.add_dependency 'tilt', '>= 1.4'
+  spec.metadata['homepage_uri'] = spec.homepage
+  spec.metadata['source_code_uri'] = 'https://github.com/opal/opal-sprockets'
+  spec.metadata['changelog_uri'] = 'https://github.com/opal/opal-sprockets/blob/master/CHANGELOG.md'
 
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'rack-test'
-  s.add_development_dependency 'sourcemap'
+  spec.required_ruby_version = Gem::Requirement.new('~> 2.5')
+
+  # Specify which files should be added to the gem when it is released.
+  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
+  files = Dir.chdir(__dir__) { `git ls-files -z`.split("\x0") }
+
+  spec.files = files.grep_v(%r{^(test|spec|features)/})
+  spec.test_files = files.grep(%r{^(test|spec|features)/})
+  spec.bindir = "exe"
+  spec.executables = files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.require_paths = ["lib"]
+
+  spec.add_dependency 'sprockets', "~> #{Opal::Sprockets::SPROCKETS_VERSION}"
+  spec.add_dependency 'opal', "~> #{Opal::Sprockets::OPAL_VERSION}"
+  spec.add_dependency 'tilt', '>= 1.4'
+
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rack-test'
+  spec.add_development_dependency 'sourcemap'
 end

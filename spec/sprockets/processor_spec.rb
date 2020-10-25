@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'opal/sprockets/processor'
 
-describe Opal::Processor do
+describe Opal::Sprockets::Processor do
   let(:pathname) { Pathname("/Code/app/mylib/opal/foo.#{ext}") }
   let(:environment) { double(Sprockets::Environment,
     cache: nil,
