@@ -8,14 +8,9 @@ branches:
 
 matrix:
   include:
-    - rvm: 2.3
-      env: OPAL_VERSION='~> 1.0.0'
-    - rvm: 2.4
-      env: OPAL_VERSION='~> 1.0.0'
     - rvm: 2.5
       env: OPAL_VERSION='~> 1.0.0'
     - rvm: 2.6
       env: OPAL_VERSION='~> 1.0.0'
-
-notifications:
-  irc: "irc.freenode.org#opal"
+    - rvm: 2.7
+      env: OPAL_VERSION='~> 1.0.0'
