@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'opal/sprockets/erb'
 
-describe Opal::ERB::Processor do
+describe Opal::Sprockets::ERBProcessor do
   let(:pathname) { Pathname("/Code/app/mylib/opal/foo.#{ext}") }
   let(:environment) { double(Sprockets::Environment,
     cache: nil,
