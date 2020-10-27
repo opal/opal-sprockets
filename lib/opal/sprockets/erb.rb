@@ -1,15 +1,11 @@
 require 'tilt'
 require 'sprockets'
 require 'opal/sprockets/processor'
+require 'opal/erb'
 
-class Opal::Sprockets::ERBProcessor < ::Opal::Sprockets::Processor
-  def initialize_engine
-    super
-    require_template_library 'opal/erb'
-  end
-
-  def evaluate(context, locals, &block)
-    compiler = Opal::ERB::Compiler.new(@data, context.logical_path.sub(/#{Opal::REGEXP_START}templates\//, ''))
+class Opal::Sprockets::ERB < ::Opal::Sprockets::Processor
+  def call
+    compiler = Opal::ERB::Compiler.new(@data, logical_path.sub(/#{Opal::REGEXP_START}templates\//, ''))
     @data = compiler.prepared_source
     super
   end
@@ -18,5 +14,6 @@ class Opal::Sprockets::ERBProcessor < ::Opal::Sprockets::Processor
   ::Opal::ERB::Processor = self
 end
 
-Tilt.register 'opalerb', Opal::Sprockets::ERBProcessor
-Sprockets.register_engine '.opalerb', Opal::Sprockets::ERBProcessor, mime_type: 'application/javascript', silence_deprecation: true
+Sprockets.register_mime_type 'application/html+javascript+ruby', extensions: ['.opalerb', '.opal.erb', '.html.opal.erb']
+Sprockets.register_transformer 'application/html+javascript+ruby', 'application/javascript', Opal::ERB::Processor
+Opal::Sprockets.register_mime_type 'application/html+javascript+ruby'

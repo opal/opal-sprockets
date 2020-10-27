@@ -5,7 +5,7 @@ describe Opal::TiltTemplate do
   %w[rb js.rb opal js.opal].each do |ext|
     let(:ext) { ext }
 
-    describe %Q{with extension ".#{ext}"} do
+    describe %{with extension ".#{ext}"} do
       it "is registered for '.#{ext}' files" do
         expect(Tilt["test.#{ext}"]).to be <= described_class
       end

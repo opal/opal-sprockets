@@ -1,8 +1,8 @@
 module Opal
   module Sprockets
-    BASE_VERSION = '0.4.9'
+    BASE_VERSION = '0.5.0'
     OPAL_VERSION = '1.0.0'
-    SPROCKETS_VERSION = '3.7'
+    SPROCKETS_VERSION = '4.0'
 
     # Just keep the first two segments of dependencies' versions
     v = -> v { v.split('.')[0..1].compact.join('.') }

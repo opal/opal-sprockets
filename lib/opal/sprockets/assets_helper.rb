@@ -61,14 +61,12 @@ module Opal::Sprockets::AssetsHelper
     # Avoid double slashes
     prefix = prefix.chop if prefix.end_with? '/'
 
-    asset = sprockets[name]
+    asset = sprockets[name, accept: "application/javascript", pipeline: debug ? :debug : nil]
     raise "Cannot find asset: #{name}" if asset.nil?
     scripts = []
 
     if debug
-      asset.to_a.map do |dependency|
-        scripts << %{<script src="#{prefix}/#{dependency.digest_path}?body=1"></script>}
-      end
+      scripts << %{<script src="#{prefix}/#{asset.digest_path}"></script>}
     else
       scripts << %{<script src="#{prefix}/#{name}.js"></script>}
     end
