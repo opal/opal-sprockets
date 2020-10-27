@@ -70,7 +70,7 @@ class Opal::Sprockets::Processor < Opal::TiltTemplate
 
     # This is the root dir of the logical path, we need this because
     # the compiler gives us the path relative to the file's logical path.
-    dirname = File.dirname(file).gsub(/#{Regexp.escape File.dirname(context.logical_path)}#{REGEXP_END}/, '')
+    dirname = File.dirname(file).gsub(/#{Regexp.escape File.dirname(context.logical_path)}#{Opal::REGEXP_END}/, '')
     dirname = Pathname(dirname)
 
     required_trees.each do |original_required_tree|
