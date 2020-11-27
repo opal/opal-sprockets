@@ -13,4 +13,7 @@ module Opal
     require 'opal/sprockets/processor'
     require 'opal/sprockets/server'
   end
+
+  autoload :Processor, 'opal/processor'
+  autoload :Environment, 'opal/environment'
 end

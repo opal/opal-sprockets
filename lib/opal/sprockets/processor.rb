@@ -150,13 +150,10 @@ class Opal::Sprockets::Processor
       end
     end
   end
-
-  # @deprecated
-  ::Opal::Processor = self
 end
 
 Sprockets.register_mime_type 'application/ruby', extensions: ['.rb', '.opal', '.js.rb', '.js.opal']
-Sprockets.register_transformer 'application/ruby', 'application/javascript', Opal::Processor
+Sprockets.register_transformer 'application/ruby', 'application/javascript', Opal::Sprockets::Processor
 Opal::Sprockets.register_mime_type 'application/ruby'
 
 Sprockets.register_mime_type 'application/ruby+ruby', extensions: ['.rb.erb', '.opal.erb', '.js.rb.erb', '.js.opal.erb']
