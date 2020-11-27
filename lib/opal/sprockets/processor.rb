@@ -163,8 +163,7 @@ Sprockets.register_mime_type 'application/ruby+ruby', extensions: ['.rb.erb', '.
 Sprockets.register_transformer 'application/ruby+ruby', 'application/ruby', Sprockets::ERBProcessor
 Opal::Sprockets.register_mime_type 'application/ruby+ruby'
 
-for type in ['application/ruby', 'application/ruby+ruby'] do
-  Sprockets.register_preprocessor type, Sprockets::DirectiveProcessor.new(comments: ["#"])
-end
+Sprockets.register_preprocessor 'application/ruby', Sprockets::DirectiveProcessor.new(comments: ["#"])
+Sprockets.register_preprocessor 'application/ruby+ruby', Sprockets::DirectiveProcessor.new(comments: ["#"])
 
 Sprockets.register_postprocessor 'application/javascript', Opal::Sprockets::Processor::PlainJavaScriptLoader
