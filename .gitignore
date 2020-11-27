@@ -11,3 +11,4 @@ build/
 .rvmrc
 .rspec-local
 /coverage
+/sandbox

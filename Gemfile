@@ -12,7 +12,9 @@ else
 end
 
 rack_version      = ENV['RACK_VERSION']
+rails_version     = ENV['RAILS_VERSION']
 sprockets_version = ENV['SPROCKETS_VERSION']
 
 gem 'rack', rack_version if rack_version
 gem 'sprockets', sprockets_version if sprockets_version
+gem 'rails', ENV['RAILS_VERSION'] || "~> 6.0"

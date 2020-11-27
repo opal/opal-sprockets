@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+# Used in the sandbox rake task in Rakefile
+
+set -e
+
+# Stay away from the bundler env of the containing extension.
+# # The unbundled helper requires Bundler 2.1 or above
+function unbundled {
+  ruby -rbundler -e'
+    Gem::Version.new(Bundler::VERSION) < Gem::Version.new("2.1") ?
+      abort("The sandbox requires at least Bundler 2.1, please run bin/setup to update it.") :
+      Bundler.with_unbundled_env {system *ARGV}' -- $@
+}
+
+rm -rf ./sandbox
+unbundled bundle exec rails new sandbox \
+  --skip-git \
+  --skip-keeps \
+  --skip-rc \
+  --skip-spring \
+  --skip-test \
+  --skip-webpack-install \
+  --skip-bundle
+
+if [ ! -d "sandbox" ]; then
+  echo 'sandbox rails application failed'
+  exit 1
+fi
+
+cd ./sandbox
+
+cat <<RUBY >> Gemfile
+gem 'opal-sprockets', path: '..'
+gem 'opal-rails', path: '../../opal-rails'
+gem 'opal', path: '../../opal'
+RUBY
+
+unbundled bundle install --gemfile Gemfile
+unbundled bin/rails webpacker:install
+
+cat << ERB > app/views/layouts/application.html.erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sandbox</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>
+ERB
+
+mkdir app/assets/javascripts
+cat << RUBY > app/assets/javascripts/application.js.rb
+JS.alert("Hello world!")
+RUBY
+
+cat << JS >> app/assets/config/manifest.js
+//= link ../javascripts/application.js.rb
+JS
+
+unbundled bin/rails g controller home index

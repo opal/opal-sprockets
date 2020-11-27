@@ -120,6 +120,16 @@ And then visit `http://127.0.0.1:9292` in any browser.
 Opal::Config.source_map_enabled = false
 ```
 
+## Development
+
+The usual drill applies:
+- run `bin/setup` to setup the project
+- run `bin/rake` to ensure all specs are green
+
+In addition to that a bin/sandbox command is available to generate
+a sandbox rails application in which is possible to experiment and
+test the gem.
+
 ## License
 
 (The MIT License)
