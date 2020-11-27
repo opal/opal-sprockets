@@ -1,38 +1,28 @@
 require 'spec_helper'
 require 'opal/sprockets/erb'
 
-describe Opal::Sprockets::ERBProcessor do
+describe Opal::Sprockets::ERB do
   let(:pathname) { Pathname("/Code/app/mylib/opal/foo.#{ext}") }
-  let(:environment) { double(Sprockets::Environment,
-    cache: nil,
-    :[] => nil,
-    resolve: pathname.expand_path.to_s,
-    engines: double(keys: %w[.rb .js .erb .opal]),
-  ) }
-  let(:sprockets_context) { double(Sprockets::Context,
-    logical_path: "foo.#{ext}",
-    environment: environment,
-    pathname: pathname,
+  let(:data) { %{<% print("") %><a href="<%= url %>"><%= name %></a>} }
+  let(:input) { {
+    environment: Opal::Sprockets::Environment.new.tap {|e| e.append_path "/Code/app/mylib/opal"},
+    data: data,
     filename: pathname.to_s,
-    root_path: '/Code/app/mylib',
-    is_a?: true,
-  ) }
-  let(:required_assets) { [] }
-  let(:template) { described_class.new { |t| %Q{<% print("") %><a href="<%= url %>"><%= name %></a>} } }
-  before { allow(sprockets_context).to receive(:require_asset) {|asset| required_assets << asset } }
-
+    load_path: "/Code/app/mylib/opal",
+    metadata: {},
+    cache: Sprockets::Cache.new
+  } }
   let(:ext) { 'opalerb' }
 
-  it "is registered for '.opalerb' files" do
-    expect(Tilt["test.#{ext}"]).to eq(described_class)
-  end
-
   it 'renders the template' do
-    expect(template.render(sprockets_context)).to include('"<a href=\""')
+    result = described_class.call(input)
+
+    expect(result[:data]).to include('"<a href=\""')
   end
 
   it 'implicitly requires "erb"' do
-    template.render(sprockets_context)
-    expect(required_assets).to eq(['erb'])
+    result = described_class.call(input)
+
+    expect(result[:required].first).to include("stdlib/erb.rb")
   end
 end

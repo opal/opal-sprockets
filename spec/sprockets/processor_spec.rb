@@ -3,77 +3,73 @@ require 'opal/sprockets/processor'
 
 describe Opal::Sprockets::Processor do
   let(:pathname) { Pathname("/Code/app/mylib/opal/foo.#{ext}") }
-  let(:environment) { double(Sprockets::Environment,
-    cache: nil,
-    :[] => nil,
-    resolve: pathname.expand_path.to_s,
-    engines: double(keys: %w[.rb .js .opal]),
-  ) }
-  let(:sprockets_context) { double(Sprockets::Context,
-    logical_path: "foo.#{ext}",
-    environment: environment,
-    pathname: pathname,
+  let(:data) { "foo" }
+  let(:input) { {
+    environment: Opal::Sprockets::Environment.new.tap {|e| e.append_path "/Code/app/mylib/opal"},
+    data: data,
     filename: pathname.to_s,
-    root_path: '/Code/app/mylib',
-    is_a?: true,
-  ) }
+    load_path: "/Code/app/mylib/opal",
+    metadata: {},
+    cache: Sprockets::Cache.new
+  } }
+
+  before do
+    allow(Sprockets::SourceMapUtils).to receive(:format_source_map)
+    allow(Sprockets::SourceMapUtils).to receive(:combine_source_maps)
+  end
 
   %w[.rb .opal].each do |ext|
-    let(:ext) { ext }
+    describe %{with extension "#{ext}"} do
+      let(:ext) { ext }
 
-    describe %Q{with extension "#{ext}"} do
       it "is registered for '#{ext}' files" do
-        expect(Sprockets.engines[ext]).to eq(described_class)
+        mime_type = Sprockets.mime_types.find { |_,v| v[:extensions].include? ".rb" }.first
+        transformers = Sprockets.transformers[mime_type]
+        transformer = transformers["application/javascript"]
+        expect(transformer.processors).to include(described_class)
       end
 
-      it "compiles and evaluates the template on #render" do
-        template = described_class.new { |t| "puts 'Hello, World!'\n" }
-        expect(template.render(sprockets_context)).to include('"Hello, World!"')
+      it "compiles the code" do
+        result = described_class.call(input.merge data: "puts 'Hello, World!'\n")
+
+        expect(result[:data]).to include('"Hello, World!"')
       end
-    end
-  end
 
-  describe '.stubbed_files' do
-    around do |e|
-      config.stubbed_files.clear
-      e.run
-      config.stubbed_files.clear
-    end
+      describe '.stubbed_files' do
+        it 'requires non-stubbed files' do
+          result = described_class.call(input.merge(data: 'require "set"'))
 
-    let(:stubbed_file) { 'foo' }
-    let(:template) { described_class.new { |t| "require #{stubbed_file.inspect}" } }
-    let(:config) { Opal::Config }
+          expect(result[:required].first).to include("stdlib/set.rb")
+        end
 
-    it 'usually require files' do
-      expect(sprockets_context).to receive(:require_asset).with(stubbed_file)
-      template.render(sprockets_context)
-    end
+        it 'skips require of stubbed file' do
+          Opal::Config.stubbed_files << 'set'
+          result = described_class.call(input.merge(data: "require 'set'"))
 
-    it 'skips require of stubbed file' do
-      config.stubbed_files << stubbed_file.to_s
-      expect(sprockets_context).not_to receive(:require_asset).with(stubbed_file)
-      template.render(sprockets_context)
-    end
+          expect(result[:required]).not_to include("set.rb")
+        end
 
-    it 'marks a stubbed file as loaded' do
-      config.stubbed_files << stubbed_file.to_s
-      asset = double(dependencies: [], pathname: Pathname('bar'), logical_path: 'bar')
-      allow(environment).to receive(:[]).with('bar.js') { asset }
-      allow(environment).to receive(:engines) { {'.rb' => described_class, '.opal' => described_class} }
+        it 'marks a stubbed file as loaded' do
+          Opal::Config.stubbed_files << 'set'
+          result = described_class.call(input.merge(data: "require 'set'"))
 
-      code = ::Opal::Sprockets.load_asset('bar')
-      expect(code).to match(stubbed_file)
-    end
-  end
+          expect(result[:data]).not_to include(::Opal::Sprockets.load_asset('set'))
+        end
+      end
 
-  describe '.cache_key' do
-    it 'can be reset' do
-      Opal::Config.arity_check_enabled = true
-      old_cache_key = described_class.cache_key
-      Opal::Config.arity_check_enabled = false
-      expect(described_class.cache_key).to eq(old_cache_key)
-      described_class.reset_cache_key!
-      expect(described_class.cache_key).not_to eq(old_cache_key)
+      describe '.cache_key' do
+        it 'can be reset' do
+          old_cache_key = described_class.cache_key
+          Opal::Config.arity_check_enabled = !Opal::Config.arity_check_enabled
+          stale_cache_key = described_class.cache_key
+
+          described_class.reset_cache_key!
+          reset_cache_key = described_class.cache_key
+
+          expect(stale_cache_key).to eq(old_cache_key)
+          expect(reset_cache_key).not_to eq(old_cache_key)
+        end
+      end
     end
   end
 end
