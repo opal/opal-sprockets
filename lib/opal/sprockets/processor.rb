@@ -164,10 +164,7 @@ Sprockets.register_transformer 'application/ruby+ruby', 'application/ruby', Spro
 Opal::Sprockets.register_mime_type 'application/ruby+ruby'
 
 for type in ['application/ruby', 'application/ruby+ruby'] do
-  Sprockets.register_preprocessor type, Sprockets::DirectiveProcessor.new(
-    comments: ["//", ["/*", "*/"], "#", ["###", "###"]]
-    # Note: // and /**/ don't make sense here, but it's how it's always have been here, so.
-  )
+  Sprockets.register_preprocessor type, Sprockets::DirectiveProcessor.new(comments: ["#"])
 end
 
 Sprockets.register_postprocessor 'application/javascript', Opal::Sprockets::Processor::PlainJavaScriptLoader
