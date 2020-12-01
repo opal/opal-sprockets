@@ -150,24 +150,17 @@ class Opal::Sprockets::Processor
       end
     end
   end
-
-  # @deprecated
-  ::Opal::Processor = self
 end
 
 Sprockets.register_mime_type 'application/ruby', extensions: ['.rb', '.opal', '.js.rb', '.js.opal']
-Sprockets.register_transformer 'application/ruby', 'application/javascript', Opal::Processor
+Sprockets.register_transformer 'application/ruby', 'application/javascript', Opal::Sprockets::Processor
 Opal::Sprockets.register_mime_type 'application/ruby'
 
 Sprockets.register_mime_type 'application/ruby+ruby', extensions: ['.rb.erb', '.opal.erb', '.js.rb.erb', '.js.opal.erb']
 Sprockets.register_transformer 'application/ruby+ruby', 'application/ruby', Sprockets::ERBProcessor
 Opal::Sprockets.register_mime_type 'application/ruby+ruby'
 
-for type in ['application/ruby', 'application/ruby+ruby'] do
-  Sprockets.register_preprocessor type, Sprockets::DirectiveProcessor.new(
-    comments: ["//", ["/*", "*/"], "#", ["###", "###"]]
-    # Note: // and /**/ don't make sense here, but it's how it's always have been here, so.
-  )
-end
+Sprockets.register_preprocessor 'application/ruby', Sprockets::DirectiveProcessor.new(comments: ["#"])
+Sprockets.register_preprocessor 'application/ruby+ruby', Sprockets::DirectiveProcessor.new(comments: ["#"])
 
 Sprockets.register_postprocessor 'application/javascript', Opal::Sprockets::Processor::PlainJavaScriptLoader

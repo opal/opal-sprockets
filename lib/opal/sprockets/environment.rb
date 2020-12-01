@@ -18,7 +18,4 @@ class Opal::Sprockets::Environment < ::Sprockets::Environment
   def append_opal_paths
     Opal.paths.each { |p| append_path p }
   end
-
-  # @deprecated
-  ::Opal::Environment = self
 end
