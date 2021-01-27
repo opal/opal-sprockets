@@ -1,21 +1,13 @@
-name: ubuntu
-
 on:
-  push:
-    branches:
-      - master
-      - "*-stable"
-      - "*ci-check"
-  pull_request:
-    branches:
-      - master
+  - push
+  - pull_request
 
 jobs:
   build:
     strategy:
       matrix:
         os: [ 'ubuntu-latest' ]
-        ruby: [ 2.7, 2.6, 2.5, ruby-head ]
+        ruby: [ 3.0, 2.7, 2.6, 2.5 ]
         opal: [ 1.0.3 ]
 
     runs-on: ${{ matrix.os }}

@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'sprockets', "~> #{Opal::Sprockets::SPROCKETS_VERSION}"
-  spec.add_dependency 'opal', "~> #{Opal::Sprockets::OPAL_VERSION}"
+  spec.add_dependency 'opal', [">= #{Opal::Sprockets::OPAL_VERSION}", "< 1.2"]
   spec.add_dependency 'tilt', '>= 1.4'
 
   spec.add_development_dependency 'rake'
