@@ -26,8 +26,8 @@ Gem::Specification.new do |spec|
   spec.executables = files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'sprockets', "~> #{Opal::Sprockets::SPROCKETS_VERSION}"
-  spec.add_dependency 'opal', [">= #{Opal::Sprockets::OPAL_VERSION}", "< 1.2"]
+  spec.add_dependency 'sprockets', "~> 4.0"
+  spec.add_dependency 'opal', [">= 1.0", "< 1.2"]
   spec.add_dependency 'tilt', '>= 1.4'
 
   spec.add_development_dependency 'rake'

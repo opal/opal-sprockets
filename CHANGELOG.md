@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/opal/opal-sprockets/compare/v0.4.9.1.0.3.7...v1.0.0)
+
+*19 February 2021*
+
+- Bump the supported sprockets version to v4
+- Add support for Opal v1.1
+- Only support Ruby comments in directive preprocessor (no one should have ever used "//", ["/*", or "*/")
+- Fix the namespaces and move everything under Opal::Sprockets (the legacy namespaces will be dropped in version 1.1)
+- The version schema has been simplified, not expecting sprockets to have major earthquakes like it was for v4
+
+
 ## [v0.4.9](https://github.com/opal/opal-sprockets/compare/v0.4.8.1.0.3.7...v0.4.9.1.0.3.7)
 
 *11 September 2020*
