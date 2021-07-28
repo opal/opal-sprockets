@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/opal/opal-sprockets/compare/v1.0.0...v1.0.1)
+
+*28 July 2021*
+
+- Open the opal dependency to all v1 versions
+
+
 ## [1.0.0](https://github.com/opal/opal-sprockets/compare/v0.4.9.1.0.3.7...v1.0.0)
 
 *19 February 2021*
