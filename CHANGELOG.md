@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/opal/opal-sprockets/compare/v1.0.1...v1.0.2)
+
+*24 August 2021*
+
+- Fix some off-by-one errors with source-maps by not using a newline for the source-map comment
+
+
 ## [1.0.1](https://github.com/opal/opal-sprockets/compare/v1.0.0...v1.0.1)
 
 *28 July 2021*
