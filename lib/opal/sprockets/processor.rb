@@ -146,7 +146,7 @@ class Opal::Sprockets::Processor
       if input[:filename] =~ opal_extnames_regexp
         input[:data]
       else
-        "#{input[:data]}\n#{Opal::Sprockets.loaded_asset(input[:name])}"
+        "#{input[:data]};#{Opal::Sprockets.loaded_asset(input[:name])}"
       end
     end
   end
