@@ -3,7 +3,7 @@ require_relative 'lib/opal/sprockets/version'
 Gem::Specification.new do |spec|
   spec.name         = 'opal-sprockets'
   spec.version      = Opal::Sprockets::VERSION
-  spec.authors      = ['Elia Schito', 'Adam Beynon']
+  spec.authors      = ['Elia Schito', 'Adam Beynon', 'Andy Maleh']
   spec.email        = 'elia@schito.me'
 
   spec.summary      = 'Sprockets support for Opal.'

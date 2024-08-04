@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.4](https://github.com/opal/opal-sprockets/compare/v1.0.3...v1.0.4)
+
+*3 August 2024*
+
+- Fix issue with upgrading gems breaking Opal compilation in Rails applications due to incorrect Sprockets caching
+
+## [1.0.3](https://github.com/opal/opal-sprockets/compare/v1.0.2...v1.0.3)
+
+*24 December 2024*
+
+- Supporting Ruby 3.1
+
 ## [1.0.2](https://github.com/opal/opal-sprockets/compare/v1.0.1...v1.0.2)
 
 *24 August 2021*
