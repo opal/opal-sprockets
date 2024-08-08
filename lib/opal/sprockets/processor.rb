@@ -11,7 +11,8 @@ require 'opal/sprockets'
 class Opal::Sprockets::Processor
   @@cache_key = nil
   def self.cache_key
-    @@cache_key ||= ['Opal', Opal::VERSION, Opal::Config.config].to_json.freeze
+    gem_config = Gem.loaded_specs.map {|gem_key, gem_spec| [gem_spec.name, gem_spec.version.to_s] }
+    @@cache_key ||= ['Opal', Opal::VERSION, Opal::Config.config, gem_config].to_json.freeze
   end
 
   def self.reset_cache_key!
