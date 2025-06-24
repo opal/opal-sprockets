@@ -69,7 +69,7 @@ class Opal::Sprockets::Server
 
     def call(env)
       if %w[/ /index.html].include? env['PATH_INFO']
-        [200, { 'Content-Type' => 'text/html' }, [html]]
+        [200, { 'content-yype' => 'text/html' }, [html]]
       else
         @app.call env
       end
